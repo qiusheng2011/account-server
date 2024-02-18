@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from .routers import account
 
 app_description = """
 这一个独立的账户服务。\n
@@ -17,6 +18,8 @@ app = FastAPI(
     swagger_ui_parameters={"syntaxHighlight.theme":"monokai"},
 )
 
+app.include_router(account.account_router)
+
 
 
 @app.get("/")
@@ -26,4 +29,4 @@ def root():
 
 @app.get("/health")
 def health():
-    return 
+    return
