@@ -1,4 +1,4 @@
-
+from typing import Optional
 from  pydantic import (
     BaseModel,
     Field
@@ -6,9 +6,9 @@ from  pydantic import (
 
 class Account(BaseModel):
 
-    aid:str = Field(title="账户id")
+    aid:Optional[str] = Field(default=None,title="账户id")
     email: str = Field(title="邮箱")
-    username:str = Field(title="账户名")
+    account_name:str = Field(title="账户名")
     hash_password:str = Field(title="hash密码")
 
 

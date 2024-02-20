@@ -11,7 +11,7 @@ app_description = """
 """
 
 
-app = FastAPI(
+appserver = FastAPI(
     title="AccountAppServer",
     description=app_description,
     version='0.0.1',
@@ -19,18 +19,16 @@ app = FastAPI(
     swagger_ui_parameters={"syntaxHighlight.theme":"monokai"},
 )
 
-app.include_router(account.account_router)
+appserver.include_router(account.account_router)
 
 
 
-@app.get("/")
+@appserver.get("/")
 def root():
     return {"message":"account appserver!"}
 
 
-@app.get("/health")
+@appserver.get("/health")
 def health():
     return
 
-if __name__ == "__main__":
-    uvicorn.run(app,port=8700)
