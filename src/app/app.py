@@ -23,12 +23,12 @@ appserver.include_router(account.account_router)
 
 
 
-@appserver.get("/")
+@appserver.get("/", tags=["ServerHealth"])
 def root():
     return {"message":"account appserver!"}
 
 
-@appserver.get("/health")
+@appserver.get("/health",tags=["ServerHealth"])
 def health():
     return
 
