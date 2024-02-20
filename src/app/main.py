@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI
 
 from .routers import account
@@ -30,3 +31,6 @@ def root():
 @app.get("/health")
 def health():
     return
+
+if __name__ == "__main__":
+    uvicorn.run(app,port=8700)
