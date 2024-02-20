@@ -16,6 +16,7 @@ from ..modules.account import (
     AccountManager,
     AccountExistError
 )
+from .router_base import BaseReponseModel
 
 
 account_router = APIRouter(prefix="/account", tags=["account"])
@@ -26,7 +27,7 @@ account_name_pattern = r".{2,20}"
 
 
 
-@account_router.post("/register")
+@account_router.post("/register", response_model=BaseReponseModel)
 def account_register(email: str = Form(pattern=email_pattern), 
                      account_name: str = Form(pattern=account_name_pattern),
                      password: str = Form(pattern=r".{8,16}")):
