@@ -6,8 +6,8 @@ from pydantic import (
 from sqlalchemy.orm import sessionmaker as SessionFactory
 
 from .model import Account
-from .dbmodel import DBAccount
-
+from .dbmodel import DBAccount, DBAccountOperater
+from .exception import AccountExistError
 
 class AccountManager():
     """账户管理器
@@ -23,8 +23,11 @@ class AccountManager():
         """
         dbaccount = DBAccount(**account.model_dump(exclude_unset=True))
         with self.dbsessionmaker.begin() as session:
+            if DBAccountOperater.check_accout_by_email_and_account_name(session, dbaccount.email, dbaccount.account_name):
+                raise AccountExistError()
             session.add(dbaccount)
-
+            session.flush()
+            account.aid = dbaccount.aid
         return True
 
     def verify_account(self, account: Account):

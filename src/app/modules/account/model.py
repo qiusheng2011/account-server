@@ -6,7 +6,7 @@ from  pydantic import (
 
 class Account(BaseModel):
 
-    aid:Optional[str] = Field(default=None,title="账户id")
+    aid:Optional[int] = Field(default=None,title="账户id")
     email: str = Field(title="邮箱")
     account_name:str = Field(title="账户名")
     hash_password:str = Field(title="hash密码")
