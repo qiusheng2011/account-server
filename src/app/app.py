@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from .routers import account
+
 from .config import appconfig
 from .dependencies import  init_db_connect
 
@@ -15,7 +16,7 @@ app_description = """
 
 
 appserver = FastAPI(
-    title="AccountAppServer",
+    title="AccountAppServer(账号服务)",
     description=app_description,
     version='0.0.1',
     openapi_url="/api/v1/openapi.json",
