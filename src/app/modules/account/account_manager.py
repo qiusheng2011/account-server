@@ -9,14 +9,16 @@ from .model import Account
 from .dbmodel import DBAccount, DBAccountOperater
 from .exception import AccountExistError
 
+
 class AccountManager():
     """账户管理器
     """
-    def __init__(self, dbsessionmaker:Optional[SessionFactory]=None):
+
+    def __init__(self, dbsessionmaker: SessionFactory):
         self.dbsessionmaker = dbsessionmaker
 
     class config:
-        arbitrary_types_allowed=True
+        arbitrary_types_allowed = True
 
     def register(self, account: Account):
         """注册一个账户
