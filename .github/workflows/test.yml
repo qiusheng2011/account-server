@@ -44,9 +44,9 @@ jobs:
       - name: init db table by sql
         run: |
           #docker exec ${{ job.services.mariadb.id }} -it  bash mkdir -p /tmp/sql/
-          docker cp ./src/dbsql/init.sql ${{ job.services.mariadb.id }}:~/
+          docker cp ./src/dbsql/init.sql ${{ job.services.mariadb.id }}:/tmp/
           # sudo apt-get install mysql-client 
-          docker exec ${{ job.services.mariadb.id }} -it  bash mysql -utesttts -pdaskjfelwjre234klfe <~/init.sql
+          docker exec ${{ job.services.mariadb.id }}  mariadb-import -utesttts -pdaskjfelwjre234klfe </tmp/init.sql
           
 
       - name: install python ${{ matrix.python-version }}
