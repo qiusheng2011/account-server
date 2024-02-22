@@ -35,11 +35,13 @@ jobs:
           options: --name mariadbtest --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
+
       - name: checkout
         uses: actions/checkout@v4
       - name: init db table by sql
         run: |
-          docker exec  mariadbtest -c "mysql -utesttts -pdaskjfelwjre234klfe <./src/init/dbsql/init.sql"
+          apt-get install mysql-client
+          mysql -utesttts -pdaskjfelwjre234klfe <./src/init/dbsql/init.sql"
 
       - name: install python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
