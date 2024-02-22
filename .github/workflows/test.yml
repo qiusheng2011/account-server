@@ -24,15 +24,15 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:11.1.2
+        image: mariadb:latest
         ports:
-          - 3306
+          - 3306:3306
         env:
           MYSQL_USER: testtts
           MYSQL_PASSWORD: daskjfelwjre234klfe
           MYSQL_DATABASE: test_tts
           MYSQL_ROOT_PASSWORD: daskjfelwjre234klfe
-        # options: --health-cmd="healthcheck.sh" --health-interval=5s --health-timeout=2s --health-retries=3
+          options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - name: checkout
