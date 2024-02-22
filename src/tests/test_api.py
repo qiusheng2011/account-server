@@ -1,4 +1,4 @@
-from ..main import appserver
+from ..app import appserver
 import os
 import random
 from fastapi.testclient import TestClient
@@ -9,11 +9,10 @@ client = TestClient(appserver)
 
 
 def test_add_account():
-    email = f"test_{random.randrange(1, 99999)}_{
-        random.choice("abcdefghijk")}@test.test"
+    email = f"test_{random.randrange(1, 99999)}_{random.choice('abcdefghijk')}@test.test"
     response = client.post("/account/register", data={
         "email": email,
-        "account_name": f"{random.choice(["asdf", "sdfsde"])}{random.randrange(1, 99999)}",
+        "account_name": f"{random.choice(['asdf', 'sdfsde'])}{random.randrange(1, 99999)}",
         "password": "ABCdsf@123"
     })
     print(response.json())
