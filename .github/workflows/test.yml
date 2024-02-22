@@ -41,7 +41,7 @@ jobs:
       - name: init db table by sql
         run: |
           sudo apt-get install mysql-client
-          mysql -utesttts -pdaskjfelwjre234klfe <./src/dbsql/init.sql
+          mysql -h127.0.0.1 -utesttts -pdaskjfelwjre234klfe <./src/dbsql/init.sql
 
       - name: install python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
