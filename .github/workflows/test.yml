@@ -30,13 +30,16 @@ jobs:
         env:
           MYSQL_USER: testtts
           MYSQL_PASSWORD: daskjfelwjre234klfe
-          MYSQL_DATABASE: test_tts
+          # MYSQL_DATABASE: test_tts
           MYSQL_ROOT_PASSWORD: daskjfelwjre234klfe
-          options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+          options: --name mariadbtest --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - name: checkout
         uses: actions/checkout@v4
+      - name: init db table by sql
+        run: |
+          docker exec  mariadbtest -c "mysql -utesttts -pdaskjfelwjre234klfe <./src/init/dbsql/init.sql"
 
       - name: install python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
