@@ -36,8 +36,8 @@ jobs:
 
       - name: install requirement.txt
         run: |
-          cat requirement.txt
-          pip install -r requirement.txt
+          cat requirements.txt
+          pip install -r requirements.txt
       
       - name: run test
         run: |
