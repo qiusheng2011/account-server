@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
       - name: init db table by sql
         run: |
-          apt-get install mysql-client
+          sudo apt-get install mysql-client
           mysql -utesttts -pdaskjfelwjre234klfe <./src/init/dbsql/init.sql
 
       - name: install python ${{ matrix.python-version }}
