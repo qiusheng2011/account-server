@@ -47,7 +47,7 @@ jobs:
           sudo apt install mariadb-client
           #docker exec ${{ job.services.mariadb.id }} ls /tmp/
           #docker exec ${{ job.services.mariadb.id }} bash  -c 'mariadb -uroot -pdaskjfelwjre234klfe < /tmp/init.sql'
-          mariadb-admin  --protocol=tcp  -uroot  -pdaskjfelwjre234klfe <./src/dbsql/init.sql
+          mariadb --protocol=tcp  -uroot  -pdaskjfelwjre234klfe  information_schema <./src/dbsql/init.sql
 
       - name: install python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
