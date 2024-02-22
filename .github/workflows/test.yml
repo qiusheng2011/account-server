@@ -41,10 +41,10 @@ jobs:
         uses: actions/checkout@v4
       - name: init db table by sql
         run: |
-          docker exec ${{ job.services.mariadb.id }}  "mkdir -p /tmp/sql/"
+          docker exec ${{ job.services.mariadb.id }}  "/bin/bash mkdir -p /tmp/sql/"
           docker cp ./src/dbsql/init.sql ${{ job.services.mariadb.id }}:/tmp/sql/
           # sudo apt-get install mysql-client 
-          docker exec ${{ job.services.mariadb.id }}  'mysql -utesttts -pdaskjfelwjre234klfe </tmp/sql/init.sql'
+          docker exec ${{ job.services.mariadb.id }}  '/bin/bash mysql -utesttts -pdaskjfelwjre234klfe </tmp/sql/init.sql'
           
 
       - name: install python ${{ matrix.python-version }}
