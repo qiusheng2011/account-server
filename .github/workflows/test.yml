@@ -24,7 +24,7 @@ jobs:
           MYSQL_USER: testtts
           MYSQL_PASSWORD: daskjfelwjre234klfe
           MYSQL_DATABASE: test_tts
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: daskjfelwjre234klfe
         options: --health-cmd="mysqladmin ping" --health-interval=20s --health-timeout=2s --health-retries=3
 
     strategy:
