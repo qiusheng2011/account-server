@@ -32,7 +32,7 @@ jobs:
           MYSQL_PASSWORD: daskjfelwjre234klfe
           MYSQL_DATABASE: test_tts
           MYSQL_ROOT_PASSWORD: daskjfelwjre234klfe
-        options: --health-cmd="healthcheck.sh" --health-interval=20s --health-timeout=2s --health-retries=3
+        # options: --health-cmd="healthcheck.sh" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - name: checkout
