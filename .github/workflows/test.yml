@@ -15,12 +15,24 @@ concurrency:
 jobs:
   tests:
     runs-on: ["ubuntu-latest"]
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: testtts
+          MYSQL_PASSWORD: daskjfelwjre234klfe
+          MYSQL_DATABASE: test_tts
+          MYSQL_ROOT_PASSWORD: password
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.12"]
     env:
-      account_server_mysql_dsn: ${{ secrets.ACCOUNT_SERVER_MYSQL_DSN}}
+      account_server_mysql_dsn: "mysql+pymysql://testtts:daskjfelwjre234klfe@1127.0.0.1:3306/test_tts"
 
     steps:
       - name: checkout
