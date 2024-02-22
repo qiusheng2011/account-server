@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - prepare
-      - dev
 permissions:
   contents: read
 
