@@ -72,6 +72,7 @@ jobs:
       
       - name: run app server
         run: |
+          cd src/
           nohup python main.py &
       
       - name: run performance test
