@@ -6,7 +6,7 @@ from sqlalchemy import (
 
 DB_CON_URL = "mysql+pymysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts"
 CONNECT_ARGS = {
-    "connect_timeout": 1
+    "connect_timeout": 5
 }
 
 DBSessionMaker = None
