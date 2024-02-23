@@ -10,24 +10,26 @@ from sqlalchemy import (
     or_
 )
 
+
 class Base(orm.DeclarativeBase):
     pass
+
 
 class DBAccount(Base):
     __tablename__ = "accounts"
 
-    aid:orm.Mapped[int] = orm.mapped_column(primary_key=True)
-    email:orm.Mapped[str] = orm.mapped_column(String(50))
-    account_name:orm.Mapped[str] = orm.mapped_column(String(20))
-    hash_password:orm.Mapped[str] = orm.mapped_column(String(64))
-    register_time:orm.Mapped[datetime] = orm.mapped_column(TIMESTAMP)
-
+    aid: orm.Mapped[int] = orm.mapped_column(primary_key=True)
+    email: orm.Mapped[str] = orm.mapped_column(String(50))
+    account_name: orm.Mapped[str] = orm.mapped_column(String(20))
+    hash_password: orm.Mapped[str] = orm.mapped_column(String(64))
+    register_time: orm.Mapped[datetime] = orm.mapped_column(TIMESTAMP)
 
 
 class DBAccountOperater():
 
     @staticmethod
-    def check_accout_by_email_and_account_name(session:orm.Session, email:str, account_name:str) -> bool:
-        subq = Select(DBAccount.aid).where(or_(DBAccount.email==email,DBAccount.account_name==account_name))
+    def check_accout_by_email_and_account_name(session: orm.Session, email: str, account_name: str) -> bool:
+        subq = Select(DBAccount.aid).where(
+            or_(DBAccount.email == email, DBAccount.account_name == account_name))
         result = session.execute(subq).first()
         return True if result else False
