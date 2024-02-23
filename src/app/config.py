@@ -14,8 +14,14 @@ APP_CONFIG_PREFIX = "account_server"
 class AppConfig(BaseSettings):
 
     mysql_dsn: MySQLDsn = Field(alias=F"{APP_CONFIG_PREFIX}_mysql_dsn")
-    mysql_connect_args:Optional[dict] = Field(
+    mysql_connect_args: Optional[dict] = Field(
         default=None, alias=F"{APP_CONFIG_PREFIX}_mysql_connect_args")
 
 
-appconfig = AppConfig()
+appconfig = None
+
+
+def setting_app_config() -> AppConfig:
+    global appconfig
+    appconfig = AppConfig()
+    return appconfig

@@ -3,13 +3,13 @@ import re
 from fastapi import (
     APIRouter,
     Form,
-    Depends
+    Depends,
+    Response,
 )
 from sqlalchemy import orm
 
 from ..dependencies import get_dbsessionmaker
 from ..tool.tool import get_hash_password
-
 from ..modules.account import (
     get_account_manager,
     Account,
@@ -17,6 +17,7 @@ from ..modules.account import (
     AccountExistError
 )
 from .router_base import BaseReponseModel
+from .exception import PasswordIllegal
 
 
 account_router = APIRouter(prefix="/account", tags=["account"])
@@ -28,7 +29,7 @@ account_name_pattern = r".{2,20}"
 
 
 @account_router.post("/register", response_model=BaseReponseModel)
-def account_register(email: str = Form(pattern=email_pattern),
+def account_register(response: Response, email: str = Form(pattern=email_pattern),
                      account_name: str = Form(pattern=account_name_pattern),
                      password: str = Form(pattern=r".{8,16}")):
     """ 账户注册
@@ -37,7 +38,8 @@ def account_register(email: str = Form(pattern=email_pattern),
         account_manager: AccountManager = get_account_manager(
             get_dbsessionmaker())
         if not re.match(password_pattern, password):
-            raise ValueError("密码不符合规范")
+            # 422
+            raise PasswordIllegal()
         new_account = Account(
             email=email,
             account_name=account_name,

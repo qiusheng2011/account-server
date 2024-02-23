@@ -3,8 +3,8 @@ from fastapi import FastAPI
 
 from .routers import account
 
-from .config import appconfig
-from .dependencies import  init_db_connect
+from .config import setting_app_config
+from .dependencies import init_db_connect
 
 
 app_description = """
@@ -23,8 +23,8 @@ appserver = FastAPI(
     swagger_ui_parameters={"syntaxHighlight.theme": "monokai"},
 )
 
-appserver.config = appconfig
-init_db_connect(appconfig.mysql_dsn.unicode_string())
+appserver.config = setting_app_config()
+init_db_connect(appserver.config.mysql_dsn.unicode_string())
 
 appserver.include_router(account.account_router)
 
