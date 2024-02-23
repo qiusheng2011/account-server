@@ -76,5 +76,4 @@ jobs:
       
       - name: run performance test
         run: |
-          ls ./
-          python -m locust  -H http://127.0.0.1:8700 -f ./tests/apiperformance_test/locustfile.py --headless -u 10 -r 20 -t 1m
+          python -m locust  -H http://127.0.0.1:8700 -f ./src/tests/apiperformance_test/locustfile.py --headless -u 10 -r 20 -t 1m
