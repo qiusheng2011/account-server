@@ -17,7 +17,7 @@ from ..modules.account import (
     AccountExistError
 )
 from .router_base import BaseReponseModel
-from .exception import PasswordIllegal
+from .exception import PasswordIllegalHTTPException
 
 
 account_router = APIRouter(prefix="/account", tags=["account"])
@@ -38,8 +38,7 @@ def account_register(response: Response, email: str = Form(pattern=email_pattern
         account_manager: AccountManager = get_account_manager(
             get_dbsessionmaker())
         if not re.match(password_pattern, password):
-            # 422
-            raise PasswordIllegal()
+            raise PasswordIllegalHTTPException()
         new_account = Account(
             email=email,
             account_name=account_name,

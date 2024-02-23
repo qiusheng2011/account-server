@@ -14,8 +14,6 @@ client = TestClient(appserver)
 
 class TestApiAccount():
 
-
-
     @pytest.mark.parametrize("password,except_status", [
         ("ABCdsf@123", 200),
         ("123", 422),
@@ -28,7 +26,8 @@ class TestApiAccount():
 
         email = f"test_{random.randrange(1, 99999)}_{
             random.choice('abcdefghijk')}@test.test"
-        account_name = f"{random.choice(['asdf', 'sdfsde'])}{random.randrange(1, 99999)}"
+        account_name = f"{random.choice(['asdf', 'sdfsde'])}{
+            random.randrange(1, 99999)}"
         response = client.post("/account/register", data={
             "email": email,
             "account_name": account_name,
