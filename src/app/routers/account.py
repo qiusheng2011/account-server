@@ -25,7 +25,7 @@ account_router = APIRouter(prefix="/account", tags=["account"])
 
 email_pattern = r"^[a-zA-Z0-9.+-_%]+@[a-zA-Z0-9.+-_%]+\.[a-zA-Z]{2,50}$"
 password_pattern = r"^(?=.*[!@#$%^&*(),.?\":{}|<>])(?=.*[a-z])(?=.*[A-Z]).{8,16}$"
-account_name_pattern = r".{2,20}"
+account_name_pattern = r"[a-zA-Z0-9\u4E00-\u9FFF]{2,20}"
 
 
 @account_router.post("/register", response_model=BaseReponseModel)

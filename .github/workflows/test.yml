@@ -53,8 +53,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: install pytest
-        run: pip install pytest
+      - name: install test lib
+        run: |
+          su apt-get install apache2-utils
+          pip install pytest
+          pip install locust
 
       - name: install requirement.txt
         run: |
@@ -65,3 +68,11 @@ jobs:
         run: |
           cd src/
           pytest  tests/
+      
+      - name: run app server
+        run: |
+          nohup python main.py &
+      
+      - name: run performance test
+        run: |
+          python -m locust  -H http://127.0.0.1:8700 -f ./apiperformance_test/locustfile.py --headless -u 10 -r 20 -t 1m

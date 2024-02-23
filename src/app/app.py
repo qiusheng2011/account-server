@@ -29,11 +29,11 @@ init_db_connect(appserver.config.mysql_dsn.unicode_string())
 appserver.include_router(account.account_router)
 
 
-@appserver.get("/", tags=["ServerHealth"])
+@appserver.get("/", tags=["ServerHealth"],include_in_schema=False)
 def root():
     return {"message": "account appserver!"}
 
 
-@appserver.get("/health", tags=["ServerHealth"])
+@appserver.get("/health", tags=["ServerHealth"], include_in_schema=False)
 def health():
     return
