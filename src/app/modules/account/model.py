@@ -14,7 +14,7 @@ class Account(BaseModel):
 
     def verfiy(self):
         """验证账户
-        """09
+        """
         pass
 
     def make_accecss_token(self):
