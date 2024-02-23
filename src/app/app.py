@@ -1,10 +1,15 @@
+import time
+import asyncio
+
 import uvicorn
 from fastapi import FastAPI
 
 from .routers import account
-
 from .config import setting_app_config
-from .dependencies import init_db_connect
+from .dependencies import (
+    init_db_connect_pool,
+    init_async_db_connect_pool
+)
 
 
 app_description = """
@@ -24,7 +29,8 @@ appserver = FastAPI(
 )
 
 appserver.config = setting_app_config()
-init_db_connect(appserver.config.mysql_dsn.unicode_string())
+init_db_connect_pool(appserver.config.mysql_dsn.unicode_string())
+
 
 appserver.include_router(account.account_router)
 
@@ -35,5 +41,7 @@ def root():
 
 
 @appserver.get("/health", tags=["ServerHealth"], include_in_schema=False)
-def health():
-    return
+async def health():
+    #time.sleep(1)
+    await asyncio.sleep(1)
+    return {"status":0, "message":"ok"}

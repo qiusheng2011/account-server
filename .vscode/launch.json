@@ -21,7 +21,7 @@
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "args": ["app:appserver", "--reload"],
+      "args": ["app:appserver", "--reload", "--workers", "1", "--limit-conc"],
       "cwd": "${workspaceFolder}/src/",
       "jinja": true,
       "env": {

@@ -17,9 +17,6 @@ class AccountManager():
     def __init__(self, dbsessionmaker: SessionFactory):
         self.dbsessionmaker = dbsessionmaker
 
-    class config:
-        arbitrary_types_allowed = True
-
     def register(self, account: Account):
         """注册一个账户
         """

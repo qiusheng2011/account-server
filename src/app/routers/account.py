@@ -29,7 +29,7 @@ account_name_pattern = r"[a-zA-Z0-9\u4E00-\u9FFF]{2,20}"
 
 
 @account_router.post("/register", response_model=BaseReponseModel)
-def account_register(response: Response, email: str = Form(pattern=email_pattern),
+async def account_register(response: Response, email: str = Form(pattern=email_pattern),
                      account_name: str = Form(pattern=account_name_pattern),
                      password: str = Form(pattern=r".{8,16}")):
     """ 账户注册
