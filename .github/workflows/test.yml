@@ -55,8 +55,8 @@ jobs:
 
       - name: install test lib
         run: |
-          su apt-get update
-          su apt-get install apache2-utils
+          sudo apt update
+          sudo apt install apache2-utils
           pip install pytest
           pip install locust
 
