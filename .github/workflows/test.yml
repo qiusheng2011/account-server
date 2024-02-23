@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - prepare
+      - preview
 permissions:
   contents: read
 
