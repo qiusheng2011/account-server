@@ -1,10 +1,12 @@
 from typing import Optional
 from pydantic import (
     MySQLDsn,
-    Field
+    Field,
+    IPvAnyAddress
 )
 from pydantic_settings import (
-    BaseSettings
+    BaseSettings,
+    SettingsConfigDict
 )
 
 
@@ -13,9 +15,17 @@ APP_CONFIG_PREFIX = "account_server"
 
 class AppConfig(BaseSettings):
 
-    mysql_dsn: MySQLDsn = Field(alias=F"{APP_CONFIG_PREFIX}_mysql_dsn")
-    mysql_connect_args: Optional[dict] = Field(
-        default=None, alias=F"{APP_CONFIG_PREFIX}_mysql_connect_args")
+    # server
+    host: IPvAnyAddress = Field(default="127.0.0.1")
+    port: int = Field(default=8700)
+
+    workers: int = Field(default=1)
+    # DB
+    mysql_dsn: MySQLDsn = Field(default=None)
+    mysql_connect_args: Optional[dict] = Field(default=None)
+
+    model_config = SettingsConfigDict(env_prefix=f"{APP_CONFIG_PREFIX}_")
+
 
 
 appconfig = None
