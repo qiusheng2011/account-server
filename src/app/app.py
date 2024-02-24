@@ -29,14 +29,14 @@ appserver = FastAPI(
 )
 
 appserver.config = setting_app_config()
-init_db_connect_pool(appserver.config.mysql_dsn.unicode_string())
+init_async_db_connect_pool(appserver.config.mysql_dsn.unicode_string())
 
 
 appserver.include_router(account.account_router)
 
 
 @appserver.get("/", tags=["ServerHealth"],include_in_schema=False)
-def root():
+async def root():
     return {"message": "account appserver!"}
 
 

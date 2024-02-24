@@ -4,10 +4,11 @@ from sqlalchemy import (
     text
 )
 from sqlalchemy.ext.asyncio import (
-    async_sessionmaker
+    async_sessionmaker,
+    create_async_engine
 )
 
-# DB_CON_URL = "mysql+pymysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts"
+# DB_CON_URL = "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts"
 CONNECT_ARGS = {
     "connect_timeout": 5
 }
@@ -27,8 +28,7 @@ def init_db_connect_pool(url, connect_args=CONNECT_ARGS):
 AsyncDBsessionMaker = None
 
 
-async def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS):
+def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS):
     global AsyncDBsessionMaker
-    engine = create_engine(url, echo=True, connect_args=connect_args)
-    SessionMaker = orm.sessionmaker(engine)
-    AsyncDBsessionMaker =  async_sessionmaker(SessionMaker)
+    engine = create_async_engine(url, echo=True, connect_args=connect_args)
+    AsyncDBsessionMaker = async_sessionmaker(bind=engine)

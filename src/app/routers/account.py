@@ -8,7 +8,7 @@ from fastapi import (
 )
 from sqlalchemy import orm
 
-from ..dependencies import get_dbsessionmaker
+from ..dependencies import get_dbsessionmaker, get_async_dbsessionmaker
 from ..tool.tool import get_hash_password
 from ..modules.account import (
     get_account_manager,
@@ -29,14 +29,16 @@ account_name_pattern = r"[a-zA-Z0-9\u4E00-\u9FFF]{2,20}"
 
 
 @account_router.post("/register", response_model=BaseReponseModel)
-async def account_register(response: Response, email: str = Form(pattern=email_pattern),
-                     account_name: str = Form(pattern=account_name_pattern),
-                     password: str = Form(pattern=r".{8,16}")):
+async def account_register(response: Response, 
+                           email: str = Form(pattern=email_pattern),
+                           account_name: str = Form(pattern=account_name_pattern),
+                           password: str = Form(pattern=r".{8,16}")
+                           ):
     """ 账户注册
     """
     try:
         account_manager: AccountManager = get_account_manager(
-            get_dbsessionmaker())
+            get_async_dbsessionmaker())
         if not re.match(password_pattern, password):
             raise PasswordIllegalHTTPException()
         new_account = Account(
@@ -44,7 +46,7 @@ async def account_register(response: Response, email: str = Form(pattern=email_p
             account_name=account_name,
             hash_password=get_hash_password(password)
         )
-        account_manager.register(new_account)
+        await account_manager.register(new_account)
     except AccountExistError as ex:
         return {
             "status": 4,

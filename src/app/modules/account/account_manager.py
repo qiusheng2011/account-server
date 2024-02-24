@@ -3,7 +3,10 @@ from typing import Optional
 from pydantic import (
     BaseModel
 )
-from sqlalchemy.orm import sessionmaker as SessionFactory
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker as AsyncSessionFactory,
+    AsyncSession
+)
 
 from .model import Account
 from .dbmodel import DBAccount, DBAccountOperater
@@ -14,18 +17,19 @@ class AccountManager():
     """账户管理器
     """
 
-    def __init__(self, dbsessionmaker: SessionFactory):
-        self.dbsessionmaker = dbsessionmaker
+    def __init__(self, async_dbsessionmaker: AsyncSessionFactory):
+        self.async_dbsessionmaker = async_dbsessionmaker
 
-    def register(self, account: Account):
+    async def register(self, account: Account):
         """注册一个账户
         """
         dbaccount = DBAccount(**account.model_dump(exclude_unset=True))
-        with self.dbsessionmaker.begin() as session:
-            if DBAccountOperater.check_accout_by_email_and_account_name(session, dbaccount.email, dbaccount.account_name):
+        async with self.async_dbsessionmaker.begin() as async_session:
+            check_result = await DBAccountOperater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
+            if check_result:
                 raise AccountExistError()
-            session.add(dbaccount)
-            session.flush()
+            async_session.add(dbaccount)
+            await async_session.flush()
             account.aid = dbaccount.aid
         return True
 

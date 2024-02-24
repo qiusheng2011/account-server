@@ -1,5 +1,5 @@
 from .database import (
-    orm, 
+    orm,
     init_db_connect_pool,
     init_async_db_connect_pool,
     async_sessionmaker
@@ -14,6 +14,7 @@ def get_dbsessionmaker() -> orm.sessionmaker:
     """
     from .database import DBSessionMaker
     return DBSessionMaker
+
 
 def get_async_dbsessionmaker() -> async_sessionmaker:
     """异步IO async session maker

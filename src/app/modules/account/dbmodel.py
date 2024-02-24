@@ -9,9 +9,10 @@ from sqlalchemy import (
     Select,
     or_
 )
+from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession
 
 
-class Base(orm.DeclarativeBase):
+class Base(AsyncAttrs, orm.DeclarativeBase):
     pass
 
 
@@ -28,8 +29,9 @@ class DBAccount(Base):
 class DBAccountOperater():
 
     @staticmethod
-    def check_accout_by_email_and_account_name(session: orm.Session, email: str, account_name: str) -> bool:
+    async def check_accout_by_email_and_account_name(session: AsyncSession, email: str, account_name: str) -> bool:
         subq = Select(DBAccount.aid).where(
             or_(DBAccount.email == email, DBAccount.account_name == account_name))
-        result = session.execute(subq).first()
-        return True if result else False
+        result = await session.execute(subq)
+        data = result.first()
+        return True if data else False

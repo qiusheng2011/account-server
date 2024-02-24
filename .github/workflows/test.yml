@@ -19,7 +19,7 @@ jobs:
       matrix:
         python-version: ["3.12"]
     env:
-      account_server_mysql_dsn: "mysql+pymysql://root:daskjfelwjre234klfe@127.0.0.1:3306/tts"
+      account_server_mysql_dsn: "mysql+aiomysql://root:daskjfelwjre234klfe@127.0.0.1:3306/tts"
 
     services:
       mariadb:
