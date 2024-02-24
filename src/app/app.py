@@ -42,6 +42,4 @@ async def root():
 
 @appserver.get("/health", tags=["ServerHealth"], include_in_schema=False)
 async def health():
-    #time.sleep(1)
-    await asyncio.sleep(1)
     return {"status":0, "message":"ok"}
