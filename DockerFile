@@ -1,5 +1,4 @@
-
-From python:3.12
+FROM python:3.12
 
 ARG mysql_dsn
 ARG host=127.0.0.1
@@ -8,7 +7,7 @@ ENV account_server_mysql_dsn=$mysql_dsn
 ENV account_server_host=$host
 ENV account_server_port=$port
 
-workdir /appserver/
+WORKDIR /the/workdir/path /appserver/
 
 COPY ./requriements.txt ./appserver/
 
