@@ -1,0 +1,21 @@
+
+From python:3.12
+
+ARG mysql_dsn
+ARG host=127.0.0.1
+ARG port=8700
+ENV account_server_mysql_dsn=$mysql_dsn
+ENV account_server_host=$host
+ENV account_server_port=$port
+
+workdir /appserver/
+
+COPY ./requriements.txt ./appserver/
+
+RUN pip install --no-cache-dir  --upgrade  -r /appserver/requriements
+
+COPY  ./app  /appserver/
+COPY ./main.py  /appserver/
+
+EXPOSE $port/tcp
+CMD ["python" "main.py"] 
