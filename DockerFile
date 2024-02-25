@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM python:3.12
 
 ARG mysql_dsn
@@ -11,15 +12,11 @@ ENV account_server_port=$port
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl  ${host}:${port}/health" ]
 
+COPY   ./requirements.txt /appserver/
+RUN pip install --no-cache-dir  --upgrade  -r /appserver/requirements.txt
 
-WORKDIR /the/workdir/path /appserver/
-
-COPY ./requriements.txt ./appserver/
-
-RUN pip install --no-cache-dir  --upgrade  -r /appserver/requriements
-
-COPY  ./app  /appserver/
-COPY ./main.py  /appserver/
+COPY ./src/   /appserver/src/
+WORKDIR /appserver/src
 
 EXPOSE $port/tcp
-CMD ["python" "main.py"] 
+CMD ["python", "./main.py"] 
