@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine
 )
 
-# DB_CON_URL = "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts"
 CONNECT_ARGS = {
     "connect_timeout": 5
 }

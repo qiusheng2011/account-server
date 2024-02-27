@@ -1,5 +1,6 @@
 from typing import (
-    Optional
+    Optional,
+    Tuple
 )
 from datetime import datetime
 from sqlalchemy import (
@@ -35,3 +36,10 @@ class DBAccountOperater():
         result = await session.execute(subq)
         data = result.first()
         return True if data else False
+
+    @staticmethod
+    async def get_account_by_email(session: AsyncSession, email: str) -> Tuple[bool, Optional[DBAccount]]:
+        selectsql = Select(DBAccount).where(DBAccount.email == email).limit(1)
+        results = await session.execute(selectsql)
+        account = results.scalar_one()
+        return (True, account) if account else (False, None)

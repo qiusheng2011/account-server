@@ -12,6 +12,9 @@ class Account(BaseModel):
     account_name: str = Field(title="账户名")
     hash_password: str = Field(title="hash密码")
 
+    class Config:
+        from_attributes = True
+
     def verfiy(self):
         """验证账户
         """
