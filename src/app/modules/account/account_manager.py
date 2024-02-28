@@ -90,6 +90,10 @@ class AccountManager():
             payload = jwt.decode(token, str(token_secret_key),
                                  algorithms=token_algorithm)
             sub_token = payload.get("sub")
+            expire_date = payload.get("exp", 0)
+            utc_now = int(datetime.now(timezone.utc).timestamp())
+            if utc_now >= expire_date:
+                return None
         except Exception as ex:
             return None
         async with self.async_dbsessionmaker.begin() as async_session:

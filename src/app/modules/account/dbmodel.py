@@ -55,7 +55,7 @@ class DBAccountOperater():
     async def get_account_by_email(session: AsyncSession, email: str) -> Tuple[bool, Optional[DBAccount]]:
         selectsql = Select(DBAccount).where(DBAccount.email == email).limit(1)
         results = await session.execute(selectsql)
-        account = results.scalar_one()
+        account = results.scalar_one_or_none()
         return (True, account) if account else (False, None)
 
     @staticmethod
