@@ -68,5 +68,5 @@ class DBAccountOperater():
             DBAccountCertificateToken.token == token).limit(1)
         results = await session.execute(sql)
         dbac_token =  results.scalar_one_or_none()
-        dbaccount = dbac_token.account
+        dbaccount = dbac_token.account if dbac_token else None
         return dbaccount if dbaccount else None
