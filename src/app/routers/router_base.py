@@ -8,6 +8,7 @@ class BaseReponseModel(BaseModel):
     message: str = "ok"
     rst: Optional[dict] = {}
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str

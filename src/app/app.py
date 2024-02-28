@@ -35,11 +35,11 @@ init_async_db_connect_pool(appserver.config.mysql_dsn.unicode_string())
 appserver.include_router(account.account_router)
 
 
-@appserver.get("/", tags=["ServerHealth"],include_in_schema=False)
+@appserver.get("/", tags=["ServerHealth"], include_in_schema=False)
 async def root():
     return {"message": "account appserver!"}
 
 
 @appserver.get("/health", tags=["ServerHealth"], include_in_schema=False)
 async def health():
-    return {"status":0, "message":"ok"}
+    return {"status": 0, "message": "ok"}

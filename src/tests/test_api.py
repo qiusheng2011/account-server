@@ -34,21 +34,28 @@ class TestApiAccount():
             random.choice('abcdefghijk')}@test.test"
         account_name = f"{random.choice(['asdf', 'sdfsde'])}{
             random.randrange(1, 99999)}"
-        response = await client.post("/account/register", data={
+        register_response = await client.post("/account/register", data={
             "email": email,
             "account_name": account_name,
             "password": password
         })
-        assert response.status_code == except_status
-        if response.status_code == 200:
+        assert register_response.status_code == except_status
+        if register_response.status_code == 200:
             pass
         else:
             return False, None, None
-        responce = await client.post("/account/signin", data={
+        signin_responce = await client.post("/account/signin", data={
             "username": email,
             "password": password
         })
-        assert responce.status_code == 200
-        data = responce.json()
+        assert signin_responce.status_code == 200
+        data = signin_responce.json()
         assert "access_token" in data
         assert data.get("token_type") == "bearer"
+
+        me_response = await client.get("/account/me", headers={
+            "Authorization": "bearer " + data["access_token"]
+        })
+        assert me_response.status_code == 200
+        account_info = me_response.json()
+        assert account_info.get("account_name", None) == account_name
