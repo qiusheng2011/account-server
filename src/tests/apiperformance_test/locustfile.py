@@ -43,9 +43,10 @@ class PtestAccountSignIn(HttpUser):
             "username": "test@test.com",
             "grant_type": "password"
         })
-        data = signin_response.json()
-        access_token = data.get("access_token")
-        if access_token:
-            self.client.get("/account/me", headers={
-                "Authorization": "bearer " + access_token
-            })
+        if signin_response.status_code == 200:
+            data = signin_response.json()
+            access_token = data.get("access_token")
+            if access_token:
+                self.client.get("/account/me", headers={
+                    "Authorization": "bearer " + access_token
+                })
