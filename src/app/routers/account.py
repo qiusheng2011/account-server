@@ -26,9 +26,11 @@ from ..modules.account import (
 from .router_base import BaseReponseModel, Token
 from .exception import (
     PasswordIllegalHTTPException,
-    AuthenticateUserFailed
+    AuthenticateUserFailed,
+    AuthenticateFailed
 )
 
+oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="signin")
 
 account_router = APIRouter(prefix="/account", tags=["account"])
 
@@ -77,17 +79,45 @@ async def account_register(email: str = Form(pattern=email_pattern),
 
 @account_router.post("/signin")
 async def signin(request: Request, form_data: security.OAuth2PasswordRequestForm = Depends(),
-                        dbsessionmaker: async_sessionmaker = Depends(
-                            get_async_dbsessionmaker)
-                        ) -> Token:
+                 dbsessionmaker: async_sessionmaker = Depends(
+    get_async_dbsessionmaker)
+) -> Token:
     account_manager = get_account_manager(dbsessionmaker)
     is_exist, account = await account_manager.authencicate_account(form_data.username, form_data.password)
     if not is_exist:
         raise AuthenticateUserFailed()
-    access_token = account_manager.make_account_access_token(
-        account, 
-        token_expire_minutes=request.app.config.access_token_expire_minutes, 
+    access_token = await account_manager.make_account_access_token(
+        account,
+        token_expire_minutes=request.app.config.access_token_expire_minutes,
         token_secret_key=request.app.config.token_secret_key,
         token_algorithm=request.app.config.token_algorithm
-        )
+    )
     return Token(access_token=access_token, token_type="bearer")
+
+
+async def get_activate_account(request: Request, token: str = Depends(oauth2_schema), dbsessionmaker: async_sessionmaker = Depends(
+        get_async_dbsessionmaker)):
+    account_manager = AccountManager(dbsessionmaker)
+    account = await account_manager.get_account_by_token(
+        token,
+        token_secret_key=request.app.config.token_secret_key,
+        token_algorithm=request.app.config.token_algorithm)
+
+    if not account:
+        raise AuthenticateFailed()
+    else:
+        return account
+
+
+async def get_current_account(account=Depends(get_activate_account)):
+    if not account:
+        raise AuthenticateFailed()
+    else:
+        return account
+
+
+@account_router.get("/me")
+def get_me_account(account: Account = Depends(get_current_account)):
+    return {
+        "account_name": account.account_name
+    }

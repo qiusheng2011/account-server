@@ -8,7 +8,9 @@ from sqlalchemy import (
     String,
     TIMESTAMP,
     Select,
-    or_
+    or_,
+    ForeignKey,
+    PrimaryKeyConstraint
 )
 from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession
 
@@ -25,6 +27,18 @@ class DBAccount(Base):
     account_name: orm.Mapped[str] = orm.mapped_column(String(20))
     hash_password: orm.Mapped[str] = orm.mapped_column(String(64))
     register_time: orm.Mapped[datetime] = orm.mapped_column(TIMESTAMP)
+
+    token = orm.Relationship('DBAccountCertificateToken', back_populates="account")
+
+
+class DBAccountCertificateToken(Base):
+    __tablename__ = "accounts_certificate_token"
+
+    aid: orm.Mapped[int] = orm.mapped_column(
+        ForeignKey('accounts.aid'), primary_key=True)
+    token: orm.Mapped[str] = orm.mapped_column(unique=True)
+
+    account = orm.Relationship('DBAccount', back_populates="token")
 
 
 class DBAccountOperater():
@@ -43,3 +57,16 @@ class DBAccountOperater():
         results = await session.execute(selectsql)
         account = results.scalar_one()
         return (True, account) if account else (False, None)
+
+    @staticmethod
+    async def save_account_token(sesssion: AsyncSession, account_token: DBAccountCertificateToken):
+        await sesssion.merge(account_token)
+
+    @staticmethod
+    async def get_account_by_token(session: AsyncSession, token: str) -> Optional[DBAccount]:
+        sql = Select(DBAccountCertificateToken).options(orm.selectinload(DBAccountCertificateToken.account)).where(
+            DBAccountCertificateToken.token == token).limit(1)
+        results = await session.execute(sql)
+        dbac_token =  results.scalar_one_or_none()
+        dbaccount = dbac_token.account
+        return dbaccount if dbaccount else None

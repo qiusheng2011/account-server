@@ -17,3 +17,12 @@ class AuthenticateUserFailed(HTTPException):
         super().__init__(status_code=status.HTTP_401_UNAUTHORIZED,
                          detail="Incorrect username or password",
                          headers={"WWW-Authenticate": "Bearer"})
+
+
+class AuthenticateFailed(HTTPException):
+    """ 验证失败
+    """
+    def __init__(self) -> None:
+        super().__init__(status_code=status.HTTP_401_UNAUTHORIZED,
+                         detail="Incorrect Certificate",
+                         headers={"WWW-Authenticate": "Bearer"})

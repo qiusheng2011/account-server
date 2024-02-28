@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import (
 from jose import JWTError, jwt
 
 from .model import Account
-from .dbmodel import DBAccount, DBAccountOperater
+from .dbmodel import DBAccount, DBAccountOperater, DBAccountCertificateToken
 from .exception import AccountExistError
 from ...tool import get_hash_password
 
@@ -66,7 +66,7 @@ class AccountManager():
         """
         pass
 
-    def make_account_access_token(self, account: Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm=""):
+    async def make_account_access_token(self, account: Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm=""):
 
         now_dt = datetime.now(timezone.utc) + \
             timedelta(minutes=token_expire_minutes)
@@ -80,4 +80,18 @@ class AccountManager():
         encode_jwt = jwt.encode(data, str(token_secret_key),
                                 algorithm=token_algorithm)
 
+        async with self.async_dbsessionmaker.begin() as async_session:
+            await DBAccountOperater.save_account_token(async_session, DBAccountCertificateToken(aid=account.aid, token=sub))
+
         return encode_jwt
+
+    async def get_account_by_token(self, token, token_secret_key: str = "", token_algorithm="") -> Optional[Account]:
+        try:
+            payload = jwt.decode(token, str(token_secret_key),
+                                 algorithms=token_algorithm)
+            sub_token = payload.get("sub")
+        except Exception as ex:
+            return None
+        async with self.async_dbsessionmaker.begin() as async_session:
+            dbaccount = await DBAccountOperater.get_account_by_token(async_session, sub_token)
+            return Account.model_validate(dbaccount) if dbaccount else None
