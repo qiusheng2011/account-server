@@ -25,5 +25,5 @@ jobs:
           git pull
           cd ../../
           ./supervisorctl.sh status  'account_server:*' 
-          ./supervisorctl.sh  restart 'account-server:*'
+          ./supervisorctl.sh  restart 'account_server:*'
           ./supervisorctl.sh status  'account_server:*'
