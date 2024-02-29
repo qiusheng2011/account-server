@@ -26,3 +26,9 @@ class AuthenticateFailed(HTTPException):
         super().__init__(status_code=status.HTTP_401_UNAUTHORIZED,
                          detail="Incorrect Certificate",
                          headers={"WWW-Authenticate": "Bearer"})
+
+class AuthenricateRefreshTokenError(HTTPException):
+    """ refresh token 无效错误
+    """
+    def __init__(self) -> None:
+        super().__init__(status.HTTP_400_BAD_REQUEST, "The provided authorization grant or refresh token is invalid, expired or revoked")

@@ -61,21 +61,29 @@ class AccountManager():
             return False, None
         return True, account
 
+    async def authencicate_account_by_refresh_token(self, refresh_token: str):
+
+        async with self.async_dbsessionmaker.begin() as async_session:
+            is_exist, account = await DBAccountOperater.get_account_by_refresh_token(async_session, refresh_token)
+            return is_exist, Account.model_validate(account) if is_exist else None
+
     def delete_account(self, account: Account):
         """物理删除一个账户的所有信息。 
         """
         pass
 
-    async def make_account_access_token(self, account: Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm=""):
+    async def make_account_access_token(self, account: Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm="", refresh_token_expire_extra_minutes: int = 1440):
 
-        now_dt = datetime.now(timezone.utc) + \
+        now = datetime.now(timezone.utc)
+        now_dt = now + \
             timedelta(minutes=token_expire_minutes)
         # TODO 加盐优化
         info = f"asdkfjkldsf#{account.account_name}#werdsfsdf#{str(now_dt)}"
         sub = hashlib.sha256(info.encode("utf8")).hexdigest()
 
-        refresh_dt = now_dt + timedelta(hours=24)
-        refresh_info = f"asdkfjkldsf#{account.email}#werdsfsdf#{str(refresh_dt)}"
+        refresh_dt = now_dt + timedelta(minutes=refresh_token_expire_extra_minutes)
+        refresh_info = f"asdkfjkldsf#{
+            account.email}#werdsfsdf#{str(refresh_dt)}"
         refresh_sub = hashlib.sha256(refresh_info.encode("utf8")).hexdigest()
         data = {
             "sub": sub,
@@ -87,7 +95,7 @@ class AccountManager():
         async with self.async_dbsessionmaker.begin() as async_session:
             await DBAccountOperater.save_account_token(async_session, DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
 
-        return encode_jwt, refresh_sub
+        return encode_jwt, refresh_sub, int(now.timestamp())
 
     async def get_account_by_token(self, token, token_secret_key: str = "", token_algorithm="") -> Optional[Account]:
         try:

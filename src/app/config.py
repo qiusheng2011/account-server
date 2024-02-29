@@ -1,10 +1,11 @@
 from typing import Optional
+from functools import lru_cache, cache, cached_property
 from pydantic import (
     MySQLDsn,
     Field,
     IPvAnyAddress,
     SecretStr,
-    computed_field
+    computed_field,
 )
 from pydantic_settings import (
     BaseSettings,
@@ -24,6 +25,7 @@ class AppConfig(BaseSettings):
 
     # token settings
     access_token_expire_minutes: int = 60
+    refresh_token_expire_extra_minutes: int = 1440
     token_secret_key: SecretStr = Field(
         default="94ebf1893ee9491c50c74a4e55ab14b1610b371de4f8c10f04955e812f9bafbd")
     token_algorithm: str = "HS256"
@@ -37,9 +39,17 @@ class AppConfig(BaseSettings):
         case_sensitive=False
     )
 
+
     @computed_field
+    @cached_property
     def access_token_expire_seconds(self) -> int:
         return self.access_token_expire_minutes*60
+
+
+    @computed_field
+    @cached_property
+    def refresh_token_expire_seconds(self) -> int:
+        return self.access_token_expire_minutes*60 + self.refresh_token_expire_extra_minutes*60
 
 
 appconfig = None

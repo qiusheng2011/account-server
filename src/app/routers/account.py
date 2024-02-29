@@ -10,8 +10,8 @@ from fastapi import (
     security,
     HTTPException,
     Request,
-
 )
+from pydantic import BaseModel
 from sqlalchemy import orm
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
@@ -28,7 +28,8 @@ from .router_base import BaseReponseModel, Token
 from .exception import (
     PasswordIllegalHTTPException,
     AuthenticateUserFailed,
-    AuthenticateFailed
+    AuthenticateFailed,
+    AuthenricateRefreshTokenError
 )
 
 oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="signin")
@@ -78,7 +79,7 @@ async def account_register(email: str = Form(pattern=email_pattern),
     }
 
 
-@account_router.post("/token")
+@account_router.post("/v2/authorization")
 async def signin(request: Request, form_data: security.OAuth2PasswordRequestForm = Depends(),
                  dbsessionmaker: async_sessionmaker = Depends(
     get_async_dbsessionmaker)
@@ -88,28 +89,64 @@ async def signin(request: Request, form_data: security.OAuth2PasswordRequestForm
     if not is_exist:
         raise AuthenticateUserFailed()
     config = request.app.extra.get("config", None)
-    access_token, refresh_token = await account_manager.make_account_access_token(
+    access_token, refresh_token, start_timestamp = await account_manager.make_account_access_token(
         account,
         token_expire_minutes=config.access_token_expire_minutes,
         token_secret_key=config.token_secret_key,
-        token_algorithm=config.token_algorithm
+        token_algorithm=config.token_algorithm,
+        refresh_token_expire_extra_minutes=config.refresh_token_expire_extra_minutes
     )
 
     return Token(
         access_token=access_token,
         token_type="bearer",
-        expire=config.access_token_expire_seconds,
-        refresh_token=refresh_token
+        expire_in=config.access_token_expire_seconds + start_timestamp,
+        refresh_token=refresh_token,
+        refresh_token_expire_in=config.refresh_token_expire_seconds + start_timestamp
     )
 
+
+class ERTRequestModel(BaseModel):
+    grant_type: str = Form()
+    refresh_token: str = Form()
+
+
+@account_router.post("/v2/accesstoken")
+async def exchange_refresh_token(request: Request, form_data: ERTRequestModel = Depends(),
+                                 dbsessionmaker: async_sessionmaker = Depends(get_async_dbsessionmaker)):
+    if form_data.grant_type != "refresh_token":
+        raise HTTPException(
+            status_code=400, detail="The provided authorization grant or refresh token is invalid, expired or revoked")
+    account_manager = AccountManager(dbsessionmaker)
+    is_exist, account = await account_manager.authencicate_account_by_refresh_token(form_data.refresh_token)
+    if not is_exist:
+        raise AuthenricateRefreshTokenError()
+    config = request.app.extra.get("config", None)
+    access_token, refresh_token, start_timestamp = await account_manager.make_account_access_token(
+        account,
+        token_expire_minutes=config.access_token_expire_minutes,
+        token_secret_key=config.token_secret_key,
+        token_algorithm=config.token_algorithm,
+        refresh_token_expire_extra_minutes=config.refresh_token_expire_extra_minutes
+    )
+
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        expire_in=config.access_token_expire_seconds + start_timestamp,
+        refresh_token=refresh_token,
+        refresh_token_expire_in=config.refresh_token_expire_seconds + start_timestamp
+    )
 
 async def get_activate_account(request: Request, token: str = Depends(oauth2_schema), dbsessionmaker: async_sessionmaker = Depends(
         get_async_dbsessionmaker)):
     account_manager = AccountManager(dbsessionmaker)
+    config = request.app.extra.get("config", None)
     account = await account_manager.get_account_by_token(
         token,
-        token_secret_key=request.app.config.token_secret_key,
-        token_algorithm=request.app.config.token_algorithm)
+        token_secret_key=config.token_secret_key,
+        token_algorithm=config.token_algorithm
+    )
 
     if not account:
         raise AuthenticateFailed()

@@ -15,5 +15,6 @@ class BaseReponseModel(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-    expire: int
+    expire_in: int
     refresh_token: str
+    refresh_token_expire_in: int
