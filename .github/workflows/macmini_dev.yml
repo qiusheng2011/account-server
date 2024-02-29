@@ -19,16 +19,10 @@ jobs:
     steps:
       - name: git pull
         run: |
-          /bin/zsh
-          zsh ~/.zshrc
-          ssdir
+          cd ~/Desktop/myselfproject/supervisor_services/
           cd ./account-server/
           git pull
-
-      - name: restart
-        run: |
-          /bin/zsh
-          ssdir
+          cd ../
           supervisorctl.sh status  account_server:8700 
           supervisorctl.sh  restart account-server:*
           supervisorctl.sh status  account_server:8700
