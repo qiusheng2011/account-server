@@ -20,7 +20,7 @@ jobs:
       - name: git pull
         run: |
           /bin/zsh
-          source ~/.zshrc
+          zsh ~/.zshrc
           ssdir
           cd ./account-server/
           git pull
