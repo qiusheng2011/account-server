@@ -20,7 +20,7 @@ jobs:
       - name: git pull
         run: |
           cd ~/Desktop/myselfproject/supervisor_services/
-          cd ./account-server/
+          cd ./services/account-server/
           git pull
           cd ../
           supervisorctl.sh status  account_server:8700 
