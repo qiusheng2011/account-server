@@ -1,0 +1,32 @@
+name: "测试环境自动更新"
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "${{ github.workflow }} @ ${{ github.evenv.pull_request.head.label || github.head_ref || github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  update_supervisor:
+    runs-on: ["macmini-account-server"]
+
+    steps:
+      - name: git pull
+        run: |
+          /bin/zsh ssdir
+          cd ./account-server/
+          git pull
+
+      - name: restart
+        run: |
+          /bin/zsh
+          ssdir
+          supervisorctl.sh status  account_server:8700 
+          supervisorctl.sh  restart account-server:*
+          supervisorctl.sh status  account_server:8700
