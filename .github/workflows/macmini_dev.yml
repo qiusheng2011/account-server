@@ -24,6 +24,6 @@ jobs:
           cd ./services/account-server/
           git pull
           cd ../../
-          ./supervisorctl.sh status  account_server:8700 
-          ./supervisorctl.sh  restart account-server:*
-          ./supervisorctl.sh status  account_server:8700
+          ./supervisorctl.sh status  'account_server:*' 
+          ./supervisorctl.sh  restart 'account-server:*
+          ./supervisorctl.sh status  'account_server:*' 
