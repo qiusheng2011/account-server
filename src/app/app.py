@@ -5,12 +5,11 @@ import uvicorn
 from fastapi import FastAPI
 
 from .routers import account
-from .config import setting_app_config
+from .config import setting_app_config,AppConfig
 from .dependencies import (
     init_db_connect_pool,
     init_async_db_connect_pool
 )
-
 
 app_description = """
 这一个独立的账户服务。\n
@@ -27,9 +26,10 @@ appserver = FastAPI(
     openapi_url="/api/v1/openapi.json",
     swagger_ui_parameters={"syntaxHighlight.theme": "monokai"},
 )
-
-appserver.config = setting_app_config()
-init_async_db_connect_pool(appserver.config.mysql_dsn.unicode_string())
+config = setting_app_config()
+appserver.extra = {}
+appserver.extra.setdefault('config', config)
+init_async_db_connect_pool(config.mysql_dsn.unicode_string())
 
 
 appserver.include_router(account.account_router)

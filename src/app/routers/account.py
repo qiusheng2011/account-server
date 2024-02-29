@@ -9,7 +9,8 @@ from fastapi import (
     Response,
     security,
     HTTPException,
-    Request
+    Request,
+
 )
 from sqlalchemy import orm
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -77,7 +78,7 @@ async def account_register(email: str = Form(pattern=email_pattern),
     }
 
 
-@account_router.post("/signin")
+@account_router.post("/token")
 async def signin(request: Request, form_data: security.OAuth2PasswordRequestForm = Depends(),
                  dbsessionmaker: async_sessionmaker = Depends(
     get_async_dbsessionmaker)
@@ -86,13 +87,20 @@ async def signin(request: Request, form_data: security.OAuth2PasswordRequestForm
     is_exist, account = await account_manager.authencicate_account(form_data.username, form_data.password)
     if not is_exist:
         raise AuthenticateUserFailed()
-    access_token = await account_manager.make_account_access_token(
+    config = request.app.extra.get("config", None)
+    access_token, refresh_token = await account_manager.make_account_access_token(
         account,
-        token_expire_minutes=request.app.config.access_token_expire_minutes,
-        token_secret_key=request.app.config.token_secret_key,
-        token_algorithm=request.app.config.token_algorithm
+        token_expire_minutes=config.access_token_expire_minutes,
+        token_secret_key=config.token_secret_key,
+        token_algorithm=config.token_algorithm
     )
-    return Token(access_token=access_token, token_type="bearer")
+
+    return Token(
+        access_token=access_token,
+        token_type="bearer",
+        expire=config.access_token_expire_seconds,
+        refresh_token=refresh_token
+    )
 
 
 async def get_activate_account(request: Request, token: str = Depends(oauth2_schema), dbsessionmaker: async_sessionmaker = Depends(

@@ -28,7 +28,8 @@ class DBAccount(Base):
     hash_password: orm.Mapped[str] = orm.mapped_column(String(64))
     register_time: orm.Mapped[datetime] = orm.mapped_column(TIMESTAMP)
 
-    token = orm.Relationship('DBAccountCertificateToken', back_populates="account")
+    token = orm.Relationship('DBAccountCertificateToken',uselist=False, back_populates="account", lazy="joined")
+
 
 
 class DBAccountCertificateToken(Base):
@@ -37,8 +38,9 @@ class DBAccountCertificateToken(Base):
     aid: orm.Mapped[int] = orm.mapped_column(
         ForeignKey('accounts.aid'), primary_key=True)
     token: orm.Mapped[str] = orm.mapped_column(unique=True)
+    refresh_token: orm.Mapped[str] = orm.mapped_column(unique=True)
 
-    account = orm.Relationship('DBAccount', back_populates="token")
+    account = orm.Relationship('DBAccount',uselist=False, back_populates="token")
 
 
 class DBAccountOperater():

@@ -3,7 +3,8 @@ from pydantic import (
     MySQLDsn,
     Field,
     IPvAnyAddress,
-    SecretStr
+    SecretStr,
+    computed_field
 )
 from pydantic_settings import (
     BaseSettings,
@@ -22,7 +23,7 @@ class AppConfig(BaseSettings):
     workers: int = Field(default=1)
 
     # token settings
-    access_token_expire_minutes: int = 5
+    access_token_expire_minutes: int = 60
     token_secret_key: SecretStr = Field(
         default="94ebf1893ee9491c50c74a4e55ab14b1610b371de4f8c10f04955e812f9bafbd")
     token_algorithm: str = "HS256"
@@ -35,6 +36,10 @@ class AppConfig(BaseSettings):
         env_prefix=f"{APP_CONFIG_PREFIX}_",
         case_sensitive=False
     )
+
+    @computed_field
+    def access_token_expire_seconds(self) -> int:
+        return self.access_token_expire_minutes*60
 
 
 appconfig = None

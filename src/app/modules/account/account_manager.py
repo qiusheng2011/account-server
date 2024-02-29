@@ -73,6 +73,10 @@ class AccountManager():
         # TODO 加盐优化
         info = f"asdkfjkldsf#{account.account_name}#werdsfsdf#{str(now_dt)}"
         sub = hashlib.sha256(info.encode("utf8")).hexdigest()
+
+        refresh_dt = now_dt + timedelta(hours=24)
+        refresh_info = f"asdkfjkldsf#{account.email}#werdsfsdf#{str(refresh_dt)}"
+        refresh_sub = hashlib.sha256(refresh_info.encode("utf8")).hexdigest()
         data = {
             "sub": sub,
             "exp": now_dt
@@ -81,9 +85,9 @@ class AccountManager():
                                 algorithm=token_algorithm)
 
         async with self.async_dbsessionmaker.begin() as async_session:
-            await DBAccountOperater.save_account_token(async_session, DBAccountCertificateToken(aid=account.aid, token=sub))
+            await DBAccountOperater.save_account_token(async_session, DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
 
-        return encode_jwt
+        return encode_jwt, refresh_sub
 
     async def get_account_by_token(self, token, token_secret_key: str = "", token_algorithm="") -> Optional[Account]:
         try:

@@ -1,5 +1,8 @@
 from typing import Optional
-from pydantic import BaseModel
+
+from pydantic import (
+    BaseModel
+)
 
 
 class BaseReponseModel(BaseModel):
@@ -12,3 +15,5 @@ class BaseReponseModel(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    expire: int
+    refresh_token: str

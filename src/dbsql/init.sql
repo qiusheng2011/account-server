@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE Table IF NOT EXISTS accounts_certificate_token (
     aid INTEGER UNSIGNED PRIMARY KEY,
     token char(64) NOT NULL,
+    refresh_token char(64) NOT NULL
     UNIQUE token (`token`),
+    UNIQUE refresh_token char(64) NOT NULL,
     CONSTRAINT act_ibaid_1 FOREIGN KEY (`aid`) REFERENCES `accounts` (`aid`)
 ) ENGINE = InnoDB COMMENT "账户凭证表";

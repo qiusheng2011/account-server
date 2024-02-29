@@ -44,9 +44,10 @@ class TestApiAccount():
             pass
         else:
             return False, None, None
-        signin_responce = await client.post("/account/signin", data={
+        signin_responce = await client.post("/account/token", data={
             "username": email,
-            "password": password
+            "password": password,
+            "grant_type": "password"
         })
         assert signin_responce.status_code == 200
         data = signin_responce.json()
