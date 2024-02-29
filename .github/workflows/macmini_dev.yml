@@ -19,6 +19,7 @@ jobs:
     steps:
       - name: git pull
         run: |
+          /bin/zsh
           ssdir
           cd ./account-server/
           git pull
