@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   update_supervisor:
-    runs-on: ["macmini-account-server"]
+    runs-on: macOS
 
     steps:
       - name: git pull
