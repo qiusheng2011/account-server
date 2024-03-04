@@ -161,6 +161,14 @@ async def get_current_account(account=Depends(get_activate_account)):
         return account
 
 
+@account_router.get("/token")
+def checking_token(account: Account = Depends(get_current_account)):
+    return {
+        "aid":account.aid,
+        "account_name": account.account_name
+    }
+
+
 @account_router.get("/me")
 def get_me_account(account: Account = Depends(get_current_account)):
     return {
