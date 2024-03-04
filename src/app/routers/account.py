@@ -32,7 +32,7 @@ from .exception import (
     AuthenricateRefreshTokenError
 )
 
-oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="signin")
+oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="/v2/authorization")
 
 account_router = APIRouter(prefix="/account", tags=["account"])
 
