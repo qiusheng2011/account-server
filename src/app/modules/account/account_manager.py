@@ -16,6 +16,7 @@ from .exception import AccountExistError
 from ...tool import get_hash_password
 
 
+
 class AccountManager():
     """账户管理器
     """
