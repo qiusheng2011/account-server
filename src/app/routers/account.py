@@ -1,6 +1,6 @@
 
 import re
-from datetime import timedelta
+import logging
 
 from fastapi import (
     APIRouter,
@@ -33,8 +33,9 @@ from .exception import (
 )
 
 oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="/v2/authorization")
-
 account_router = APIRouter(prefix="/account", tags=["account"])
+logger = logging.getLogger(__name__)
+
 
 
 email_pattern = r"^[a-zA-Z0-9.+-_%]+@[a-zA-Z0-9.+-_%]+\.[a-zA-Z]{2,50}$"

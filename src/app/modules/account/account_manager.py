@@ -1,5 +1,7 @@
 from typing import Optional
 import hashlib
+import logging
+
 from datetime import datetime, timedelta, timezone
 from pydantic import (
     BaseModel
@@ -23,6 +25,7 @@ class AccountManager():
 
     def __init__(self, async_dbsessionmaker: AsyncSessionFactory):
         self.async_dbsessionmaker = async_dbsessionmaker
+        self.logger = logging.getLogger(__name__)
 
     async def register(self, account: Account):
         """注册一个账户

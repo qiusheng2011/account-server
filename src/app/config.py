@@ -21,6 +21,7 @@ class AppConfig(BaseSettings):
     # server
     host: IPvAnyAddress = Field(default="127.0.0.1")
     port: int = Field(default=8700)
+    debug: bool = False
     workers: int = Field(default=1)
 
     # token settings
