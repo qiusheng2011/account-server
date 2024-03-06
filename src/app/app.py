@@ -34,8 +34,8 @@ appserver.extra.setdefault('config', config)
 # 异常注册
 
 # 日志配置
-seting_logging_config(debug=config.debug)
-init_async_db_connect_pool(config.mysql_dsn.unicode_string())
+seting_logging_config(logfile_path=config.log_path, debug=config.debug)
+init_async_db_connect_pool(str(config.mysql_dsn), debug=config.debug)
 
 from .app_deal_exception import *
 

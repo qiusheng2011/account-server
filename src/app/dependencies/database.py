@@ -15,9 +15,9 @@ CONNECT_ARGS = {
 DBSessionMaker = None
 
 
-def init_db_connect_pool(url, connect_args=CONNECT_ARGS):
+def init_db_connect_pool(url, connect_args=CONNECT_ARGS, debug=False):
     global DBSessionMaker
-    engine = create_engine(url, echo=True, connect_args=connect_args)
+    engine = create_engine(url, echo=debug, connect_args=connect_args)
     SessionMaker = orm.sessionmaker(engine)
     DBSessionMaker = SessionMaker
 
@@ -27,7 +27,7 @@ def init_db_connect_pool(url, connect_args=CONNECT_ARGS):
 AsyncDBsessionMaker = None
 
 
-def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS):
+def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS, debug=False):
     global AsyncDBsessionMaker
-    engine = create_async_engine(url, echo=True, connect_args=connect_args)
+    engine = create_async_engine(url, echo=debug, connect_args=connect_args)
     AsyncDBsessionMaker = async_sessionmaker(bind=engine)

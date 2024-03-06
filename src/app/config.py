@@ -6,13 +6,16 @@ from pydantic import (
     IPvAnyAddress,
     SecretStr,
     computed_field,
+    DirectoryPath
 )
 from pydantic_settings import (
     BaseSettings,
     SettingsConfigDict
 )
+from pathlib import Path
 
 
+CURRENT_DIR = str(Path(__file__).parent)
 APP_CONFIG_PREFIX = "account_server"
 
 
@@ -31,9 +34,15 @@ class AppConfig(BaseSettings):
         default="94ebf1893ee9491c50c74a4e55ab14b1610b371de4f8c10f04955e812f9bafbd")
     token_algorithm: str = "HS256"
 
+    # log
+    log_dir: DirectoryPath = Path(f"{CURRENT_DIR}/../../../logs/")
+    log_prefix: str = APP_CONFIG_PREFIX
+
     # DB
     mysql_dsn: MySQLDsn = Field(default=None)
-    mysql_connect_args: Optional[dict] = Field(default=None)
+    mysql_connect_args: Optional[dict] = {
+        "connect_timeout": 3
+    }
 
     model_config = SettingsConfigDict(
         env_prefix=f"{APP_CONFIG_PREFIX}_",
@@ -51,6 +60,11 @@ class AppConfig(BaseSettings):
     @cached_property
     def refresh_token_expire_seconds(self) -> int:
         return self.access_token_expire_minutes*60 + self.refresh_token_expire_extra_minutes*60
+
+    @computed_field
+    @cached_property
+    def log_path(self) -> str:
+        return f"{self.log_dir.absolute()}/{self.log_prefix}_{self.port}"
 
 
 appconfig = None
