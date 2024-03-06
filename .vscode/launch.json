@@ -25,7 +25,8 @@
       "cwd": "${workspaceFolder}/src/",
       "jinja": true,
       "env": {
-        "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86:3306/tts"
+        "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86:3306/tts",
+        
       },
       "justMyCode": false
     },
@@ -45,7 +46,8 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}/src/",
       "env": {
-        "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts"
+        "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts",
+        "account_server_port": "8000"
       }
     }
   ]

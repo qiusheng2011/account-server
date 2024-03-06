@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from .routers import account
 from .logging_config import seting_logging_config
-from .config import setting_app_config,AppConfig
+from .config import setting_app_config, AppConfig
 from .dependencies import (
     init_db_connect_pool,
     init_async_db_connect_pool
@@ -30,6 +30,9 @@ appserver = FastAPI(
 config = setting_app_config()
 appserver.extra = {}
 appserver.extra.setdefault('config', config)
+
+# 异常注册
+from .app_deal_exception import *
 
 # 日志配置
 seting_logging_config(debug=config.debug)
