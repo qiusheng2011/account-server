@@ -32,12 +32,12 @@ appserver.extra = {}
 appserver.extra.setdefault('config', config)
 
 # 异常注册
-from .app_deal_exception import *
 
 # 日志配置
 seting_logging_config(debug=config.debug)
 init_async_db_connect_pool(config.mysql_dsn.unicode_string())
 
+from .app_deal_exception import *
 
 appserver.include_router(account.account_router)
 
