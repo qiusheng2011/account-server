@@ -7,3 +7,4 @@ pydantic_settings
 # locust
 passlib[bcrypt]
 python-jose
+loguru
