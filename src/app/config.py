@@ -37,7 +37,7 @@ class AppConfig(BaseSettings):
     token_algorithm: str = "HS256"
 
     # log
-    log_dir: DirectoryPath = Path(f"{CURRENT_DIR}/../../../logs/")
+    log_dir: Optional[DirectoryPath] = Path(f"{CURRENT_DIR}/../../../logs/")
     log_prefix: str = APP_CONFIG_PREFIX
 
     log_server_url: Optional[AnyUrl] = None
