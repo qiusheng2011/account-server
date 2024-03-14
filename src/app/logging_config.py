@@ -15,7 +15,7 @@ import msgpack
 
 def seting_logging_config(server_name="",logfile_path="./", debug=False, log_server_url: Optional[AnyUrl] = None):
     # 基础配置
-    log_formater = "%(asctime)s\t%(levelname)s\t%(module)s\t%(message)s"
+    log_formater = f"{server_name}\t"+"%(asctime)s\t%(levelname)s\t%(module)s\t%(message)s"
     log_level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(level=log_level, format=log_formater)
     root_logger = logging.getLogger()

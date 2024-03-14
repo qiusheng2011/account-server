@@ -11,7 +11,7 @@ from fastapi.requests import Request
 
 from .app import appserver
 
-#logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @appserver.exception_handler(DatabaseError)

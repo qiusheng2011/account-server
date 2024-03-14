@@ -34,7 +34,7 @@ appserver.extra.setdefault('config', config)
 # 异常注册
 
 # 日志配置
-seting_logging_config(
+seting_logging_config(x
     server_name=config.server_name,
     logfile_path=config.log_path,
     debug=config.debug, 
