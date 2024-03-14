@@ -21,12 +21,12 @@
       "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "args": ["app:appserver", "--workers", "1"],
+      "args": ["main:appserver", "--workers", "1"],
       "cwd": "${workspaceFolder}/src/",
-      "jinja": true,
       "env": {
         "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86:3306/tts",
-        
+        "account_server_port": "8000",
+        "account_server_log_server_url": "udp://192.168.196.86:8999"
       },
       "justMyCode": false
     },
@@ -48,9 +48,10 @@
       "env": {
         "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts",
         "account_server_port": "8000",
-        "account_server_workers": "2"
-
-      }
+        "account_server_workers": "1",
+        "account_server_log_server_url": "udp://192.168.196.86:8999"
+      },
+      "justMyCode": false
     }
   ]
 }

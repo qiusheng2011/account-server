@@ -6,7 +6,8 @@ from pydantic import (
     IPvAnyAddress,
     SecretStr,
     computed_field,
-    DirectoryPath
+    DirectoryPath,
+    AnyUrl
 )
 from pydantic_settings import (
     BaseSettings,
@@ -22,6 +23,7 @@ APP_CONFIG_PREFIX = "account_server"
 class AppConfig(BaseSettings):
 
     # server
+    server_name: str = "account_server"
     host: IPvAnyAddress = Field(default="127.0.0.1")
     port: int = Field(default=8700)
     debug: bool = False
@@ -37,6 +39,8 @@ class AppConfig(BaseSettings):
     # log
     log_dir: DirectoryPath = Path(f"{CURRENT_DIR}/../../../logs/")
     log_prefix: str = APP_CONFIG_PREFIX
+
+    log_server_url: Optional[AnyUrl] = None
 
     # DB
     mysql_dsn: MySQLDsn = Field(default=None)
