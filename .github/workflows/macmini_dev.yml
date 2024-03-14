@@ -26,7 +26,7 @@ jobs:
           git pull
       - name: 重启服务
         run: |
-          cd ../../
+          cd ~/Desktop/myselfproject/supervisor_services/
           ./supervisorctl.sh status  'account_server:*' 
           ./supervisorctl.sh  restart 'account_server:*'
           ./supervisorctl.sh status  'account_server:*'
