@@ -18,12 +18,14 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: git pull
+      - name: 更新代码
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/
           cd ./services/account-server/
           git pull
+      - name: 重启服务
+        run: |
           cd ../../
           ./supervisorctl.sh status  'account_server:*' 
           ./supervisorctl.sh  restart 'account_server:*'
