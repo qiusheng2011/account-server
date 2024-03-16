@@ -9,6 +9,7 @@ from fastapi.responses import (
 )
 from fastapi.requests import Request
 
+
 from .app import appserver
 
 logger = logging.getLogger(__name__)
@@ -18,5 +19,11 @@ logger = logging.getLogger(__name__)
 async def deal_db_database_error(request: Request, exc: Exception):
     error_msg = f"数据库错误\t{request.url._url}\tsqlalchemy.errorcode={
         exc.code}\t{' '.join(exc.args)}"
+    logger.critical(error_msg)
+    return PlainTextResponse("server error", status_code=500)
+
+@appserver.exception_handler(RuntimeError)
+async def deal_exception(request: Request, exc: Exception):
+    error_msg = f"运行错误\t{request.url._url}\t{' '.join(exc.args)}"
     logger.critical(error_msg)
     return PlainTextResponse("server error", status_code=500)
