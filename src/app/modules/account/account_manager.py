@@ -18,7 +18,6 @@ from .exception import AccountExistError
 from ...tool import get_hash_password
 
 
-
 class AccountManager():
     """账户管理器
     """
@@ -30,15 +29,18 @@ class AccountManager():
     async def register(self, account: Account):
         """注册一个账户
         """
-        dbaccount = DBAccount(**account.model_dump(exclude_unset=True))
-        async with self.async_dbsessionmaker.begin() as async_session:
-            check_result = await DBAccountOperater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
-            if check_result:
-                raise AccountExistError()
-            async_session.add(dbaccount)
-            await async_session.flush()
-            account.aid = dbaccount.aid
-        return True
+        try:
+            dbaccount = DBAccount(**account.model_dump(exclude_unset=True))
+            async with self.async_dbsessionmaker.begin() as async_session:
+                check_result = await DBAccountOperater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
+                if check_result:
+                    raise AccountExistError()
+                async_session.add(dbaccount)
+                await async_session.flush()
+                account.aid = dbaccount.aid
+            return True
+        except Exception as ex:
+            raise ex
 
     def verify_account(self, account: Account, password: str):
         """ 验证账户
@@ -51,9 +53,12 @@ class AccountManager():
     async def get_accounts_by_email(self, email):
         """获取账户
         """
-        async with self.async_dbsessionmaker.begin() as async_session:
-            is_exist, account = await DBAccountOperater.get_account_by_email(session=async_session, email=email)
-            return (True, Account.model_validate(account)) if is_exist else (False, None)
+        try:
+            async with self.async_dbsessionmaker.begin() as async_session:
+                is_exist, account = await DBAccountOperater.get_account_by_email(session=async_session, email=email)
+                return (True, Account.model_validate(account)) if is_exist else (False, None)
+        except Exception as ex:
+            raise ex
 
     async def authencicate_account(self, email: str, password: str):
         """校验账户
@@ -67,9 +72,12 @@ class AccountManager():
 
     async def authencicate_account_by_refresh_token(self, refresh_token: str):
 
-        async with self.async_dbsessionmaker.begin() as async_session:
-            is_exist, account = await DBAccountOperater.get_account_by_refresh_token(async_session, refresh_token)
-            return is_exist, Account.model_validate(account) if is_exist else None
+        try:
+            async with self.async_dbsessionmaker.begin() as async_session:
+                is_exist, account = await DBAccountOperater.get_account_by_refresh_token(async_session, refresh_token)
+                return is_exist, Account.model_validate(account) if is_exist else None
+        except Exception as ex:
+            raise ex
 
     def delete_account(self, account: Account):
         """物理删除一个账户的所有信息。 
@@ -85,7 +93,8 @@ class AccountManager():
         info = f"asdkfjkldsf#{account.account_name}#werdsfsdf#{str(now_dt)}"
         sub = hashlib.sha256(info.encode("utf8")).hexdigest()
 
-        refresh_dt = now_dt + timedelta(minutes=refresh_token_expire_extra_minutes)
+        refresh_dt = now_dt + \
+            timedelta(minutes=refresh_token_expire_extra_minutes)
         refresh_info = f"asdkfjkldsf#{
             account.email}#werdsfsdf#{str(refresh_dt)}"
         refresh_sub = hashlib.sha256(refresh_info.encode("utf8")).hexdigest()
@@ -95,9 +104,11 @@ class AccountManager():
         }
         encode_jwt = jwt.encode(data, str(token_secret_key),
                                 algorithm=token_algorithm)
-
-        async with self.async_dbsessionmaker.begin() as async_session:
-            await DBAccountOperater.save_account_token(async_session, DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
+        try:
+            async with self.async_dbsessionmaker.begin() as async_session:
+                await DBAccountOperater.save_account_token(async_session, DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
+        except Exception as ex:
+            raise ex
 
         return encode_jwt, refresh_sub, int(now.timestamp())
 
@@ -110,8 +121,8 @@ class AccountManager():
             utc_now = int(datetime.now(timezone.utc).timestamp())
             if utc_now >= expire_date:
                 return None
+            async with self.async_dbsessionmaker.begin() as async_session:
+                dbaccount = await DBAccountOperater.get_account_by_token(async_session, sub_token)
+                return Account.model_validate(dbaccount) if dbaccount else None
         except Exception as ex:
             return None
-        async with self.async_dbsessionmaker.begin() as async_session:
-            dbaccount = await DBAccountOperater.get_account_by_token(async_session, sub_token)
-            return Account.model_validate(dbaccount) if dbaccount else None
