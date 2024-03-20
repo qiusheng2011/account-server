@@ -21,7 +21,7 @@ appserver = FastAPI(
     openapi_url="/api/v1/openapi.json",
     swagger_ui_parameters={"syntaxHighlight.theme": "monokai"},
 )
-app_config = config.setting_app_config()
+app_config = config.get_app_config()
 appserver.extra = {}
 appserver.extra.setdefault('config', app_config)
 

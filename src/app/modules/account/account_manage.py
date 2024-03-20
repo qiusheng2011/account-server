@@ -9,7 +9,7 @@ from jose import jwt
 
 from app.modules.account import model
 from app.modules.account import dbmodel
-from app.modules.account import exceptions
+from app.modules.account import exception_errors
 from app.tool import tool
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ class AccountManager():
             async with self.async_dbsessionmaker.begin() as async_session:
                 check_result = await dbmodel.DBAccountOperater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
                 if check_result:
-                    raise exceptions.AccountExistError()
+                    raise exception_errors.AccountExistError()
                 async_session.add(dbaccount)
                 await async_session.flush()
                 account.aid = dbaccount.aid

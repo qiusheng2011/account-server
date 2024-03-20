@@ -6,7 +6,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from .account_manage import AccountManager
-from .exceptions import *
+from .exception_errors import *
 
 
 def get_account_manager(dbsessionmaker: async_sessionmaker) -> AccountManager:

@@ -6,7 +6,7 @@ import pydantic_settings
 import pathlib
 
 
-CURRENT_DIR = str(pathlib.Path(__file__).parent)
+_CURRENT_DIR = str(pathlib.Path(__file__).parent)
 APP_CONFIG_PREFIX = "account_server"
 
 
@@ -28,7 +28,7 @@ class AppConfig(pydantic_settings.BaseSettings):
 
     # log
     log_dir: Optional[pydantic.DirectoryPath] = pathlib.Path(
-        f"{CURRENT_DIR}/../../../logs/")
+        f"{_CURRENT_DIR}/../../../logs/")
     log_prefix: str = APP_CONFIG_PREFIX
 
     log_server_url: Optional[pydantic.AnyUrl] = None
@@ -63,10 +63,11 @@ class AppConfig(pydantic_settings.BaseSettings):
             return ""
 
 
-appconfig = None
+_APP_CONFIG: Optional[AppConfig] = None
 
 
-def setting_app_config() -> AppConfig:
-    global appconfig
-    appconfig = AppConfig()
-    return appconfig
+def get_app_config() -> AppConfig:
+    global _APP_CONFIG
+    if not _APP_CONFIG:
+        _APP_CONFIG = AppConfig()
+    return _APP_CONFIG
