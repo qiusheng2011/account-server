@@ -18,7 +18,6 @@ jobs:
     timeout-minutes: 5
     defaults:
       run:
-        shell: zsh
         working-directory: ~/Desktop/myselfproject/supervisor_services/services/account-server/
     steps:
       - name: 更新代码
@@ -27,6 +26,7 @@ jobs:
 
       - name: 更新环境并测试
         run: |
+          /bin/zsh
           source ~/.zshrc
           set -e
           cd
@@ -39,6 +39,7 @@ jobs:
 
       - name: 重启服务
         run: |
+          /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/
           ./supervisorctl.sh status  'account_server:*' 
           ./supervisorctl.sh  restart 'account_server:*'
