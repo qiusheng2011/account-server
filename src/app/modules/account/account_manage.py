@@ -5,7 +5,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
-from jose import jwt
+from jose import jwt, exceptions as jose_exceptions
 
 from app.modules.account import model
 from app.modules.account import dbmodel
@@ -122,6 +122,9 @@ class AccountManager():
             async with self.async_dbsessionmaker.begin() as async_session:
                 dbaccount = await self.db_account_operater.get_account_by_token(async_session, sub_token)
                 return model.Account.model_validate(dbaccount) if dbaccount else None
+        except jose_exceptions.ExpiredSignatureError:
+            return None
+
         except Exception as ex:
             logger.critical(str(ex))
             raise ex
