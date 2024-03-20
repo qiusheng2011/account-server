@@ -20,8 +20,8 @@ jobs:
       matrix:
         python-version: ["3.12"]
     env:
-      account_server_mysql_dsn: "mysql+aiomysql://root:daskjfelwjre234klfe@127.0.0.1:3306/tts"
-
+      ACCOUNT_SERVER_MYSQL_DSN: "mysql+aiomysql://root:daskjfelwjre234klfe@127.0.0.1:3306/tts"
+      ACCOUNT_SERVER_LOG_DIR: "./logs"
     services:
       mariadb:
         image: mariadb:latest
@@ -68,12 +68,12 @@ jobs:
 
       - name: run test【测试】
         run: |
+          mkdir logs
           pytest  tests/
       
       - name: run app server
         run: |
-          cd src/
-          nohup python main.py &
+          nohup python src/main.py &
       
       - name: run performance test
         run: |
