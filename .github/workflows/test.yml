@@ -66,9 +66,8 @@ jobs:
           cat requirements.txt
           pip install -r requirements.txt
 
-      - name: run test
+      - name: run test【测试】
         run: |
-          cd src/
           pytest  tests/
       
       - name: run app server

@@ -31,10 +31,10 @@ class TestApiAccount():
         """
         # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
         client = async_client
-        email = f"test_{random.randrange(1, 99999)}_{
-            random.choice('abcdefghijk')}@test.test"
-        account_name = f"{random.choice(['asdf', 'sdfsde'])}{
-            random.randrange(1, 99999)}"
+        email = f"test_{random.randrange(1, 99999)}\
+        _{random.choice('abcdefghijk')}@test.test"
+        account_name = f"{random.choice(['asdf', 'sdfsde'])}\
+            {random.randrange(1, 99999)}"
         register_response = await client.post("/account/register", data={
             "email": email,
             "account_name": account_name,
