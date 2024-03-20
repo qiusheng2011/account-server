@@ -22,6 +22,7 @@ class AccountManager():
     def __init__(self, async_dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker):
         self.async_dbsessionmaker = async_dbsessionmaker
         self.logger = logging.getLogger(__name__)
+        self.db_account_operater = dbmodel.DBAccountOperater()
 
     async def register(self, account: model.Account):
         """注册一个账户
@@ -29,7 +30,7 @@ class AccountManager():
         try:
             dbaccount = dbmodel.DBAccount(**account.model_dump(exclude_unset=True))
             async with self.async_dbsessionmaker.begin() as async_session:
-                check_result = await dbmodel.DBAccountOperater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
+                check_result = await self.db_account_operater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
                 if check_result:
                     raise exception_errors.AccountExistError()
                 async_session.add(dbaccount)
@@ -52,7 +53,7 @@ class AccountManager():
         """
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                is_exist, account = await dbmodel.DBAccountOperater.get_account_by_email(session=async_session, email=email)
+                is_exist, account = await self.db_account_operater.get_account_by_email(session=async_session, email=email)
                 return (True, model.Account.model_validate(account)) if is_exist else (False, None)
         except Exception as ex:
             raise ex
@@ -72,7 +73,7 @@ class AccountManager():
 
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                is_exist, account = await dbmodel.DBAccountOperater.get_account_by_refresh_token(async_session, refresh_token)
+                is_exist, account = await self.db_account_operater.get_account_by_refresh_token(async_session, refresh_token)
                 return is_exist, model.Account.model_validate(account) if is_exist else None
         except Exception as ex:
             raise ex
@@ -104,7 +105,7 @@ class AccountManager():
                                 algorithm=token_algorithm)
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                await dbmodel.DBAccountOperater.save_account_token(async_session, dbmodel.DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
+                await self.db_account_operater.save_account_token(async_session, dbmodel.DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
         except Exception as ex:
             raise ex
 

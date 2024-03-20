@@ -40,8 +40,8 @@ class DBAccountCertificateToken(Base):
 
 class DBAccountOperater():
 
-    @staticmethod
-    async def check_accout_by_email_and_account_name(session: AsyncSession, email: str, account_name: str) -> bool:
+
+    async def check_accout_by_email_and_account_name(self, session: AsyncSession, email: str, account_name: str) -> bool:
         try:
             subq = sa.Select(DBAccount.aid).where(
                 sa.or_(DBAccount.email == email, DBAccount.account_name == account_name))
@@ -51,8 +51,7 @@ class DBAccountOperater():
         except Exception as ex:
             raise ex
 
-    @staticmethod
-    async def get_account_by_email(session: AsyncSession, email: str) -> Tuple[bool, Optional[DBAccount]]:
+    async def get_account_by_email(self, session: AsyncSession, email: str) -> Tuple[bool, Optional[DBAccount]]:
         try:
             selectsql = sa.Select(DBAccount).where(DBAccount.email == email).limit(1)
             results = await session.execute(selectsql)
@@ -61,8 +60,7 @@ class DBAccountOperater():
         except Exception as ex:
             raise ex
 
-    @staticmethod
-    async def get_account_by_refresh_token(session: AsyncSession, refresh_token: str):
+    async def get_account_by_refresh_token(self, session: AsyncSession, refresh_token: str):
         try:
             selectsql = sa.Select(DBAccount).where(
                 DBAccountCertificateToken.refresh_token == refresh_token)
@@ -72,15 +70,14 @@ class DBAccountOperater():
         except Exception as ex:
             raise ex
 
-    @staticmethod
-    async def save_account_token(sesssion: AsyncSession, account_token: DBAccountCertificateToken):
+
+    async def save_account_token(self, sesssion: AsyncSession, account_token: DBAccountCertificateToken):
         try:
             await sesssion.merge(account_token)
         except Exception as ex:
             raise ex
 
-    @staticmethod
-    async def get_account_by_token(session: AsyncSession, token: str) -> Optional[DBAccount]:
+    async def get_account_by_token(self, session: AsyncSession, token: str) -> Optional[DBAccount]:
         try:
             sql = sa.Select(DBAccountCertificateToken).options(orm.selectinload(DBAccountCertificateToken.account)).where(
                 DBAccountCertificateToken.token == token).limit(1)
