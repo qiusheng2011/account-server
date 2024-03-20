@@ -30,9 +30,11 @@ class PtestAccountRegister(HttpUser):
 class PtestAccountSignIn(HttpUser):
 
     def on_start(self):
+        self.account_name = f"test0{random.randrange(0, 99999999)}"
+        self.email = f"{self.account_name}@test.com"
         self.client.post("/account/register", data=dict(
-            email="test@test.com",
-            account_name="test",
+            email=self.email,
+            account_name=self.account_name,
             password="abcABC@123"
         ))
 
@@ -40,7 +42,7 @@ class PtestAccountSignIn(HttpUser):
     def get_token(self):
         signin_response = self.client.post("/account/v2/authorization", data={
             "password": "abcABC@123",
-            "username": "test@test.com",
+            "username": self.email,
             "grant_type": "password"
         })
         if signin_response.status_code == 200:

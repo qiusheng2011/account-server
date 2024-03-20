@@ -22,6 +22,7 @@ jobs:
     env:
       ACCOUNT_SERVER_MYSQL_DSN: "mysql+aiomysql://root:daskjfelwjre234klfe@127.0.0.1:3306/tts"
       ACCOUNT_SERVER_LOG_DIR: "./logs"
+      ACCOUNT_SERVER_PORT: 8700
     services:
       mariadb:
         image: mariadb:latest
