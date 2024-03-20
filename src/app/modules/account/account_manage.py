@@ -79,7 +79,7 @@ class AccountManager():
             raise ex
 
     def delete_account(self, account: model.Account):
-        """物理删除一个账户的所有信息。 
+        """物理删除一个账户的所有信息。
         """
         pass
 
@@ -121,7 +121,7 @@ class AccountManager():
             if utc_now >= expire_date:
                 return None
             async with self.async_dbsessionmaker.begin() as async_session:
-                dbaccount = await dbmodel.DBAccountOperater.get_account_by_token(async_session, sub_token)
+                dbaccount = await self.db_account_operater.get_account_by_token(async_session, sub_token)
                 return model.Account.model_validate(dbaccount) if dbaccount else None
         except Exception as ex:
             logger.critical(str(ex))

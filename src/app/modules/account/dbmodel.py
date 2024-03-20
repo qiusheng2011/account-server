@@ -40,7 +40,6 @@ class DBAccountCertificateToken(Base):
 
 class DBAccountOperater():
 
-
     async def check_accout_by_email_and_account_name(self, session: AsyncSession, email: str, account_name: str) -> bool:
         try:
             subq = sa.Select(DBAccount.aid).where(
@@ -53,7 +52,8 @@ class DBAccountOperater():
 
     async def get_account_by_email(self, session: AsyncSession, email: str) -> Tuple[bool, Optional[DBAccount]]:
         try:
-            selectsql = sa.Select(DBAccount).where(DBAccount.email == email).limit(1)
+            selectsql = sa.Select(DBAccount).where(
+                DBAccount.email == email).limit(1)
             results = await session.execute(selectsql)
             account = results.scalar_one_or_none()
             return (True, account) if account else (False, None)
@@ -69,7 +69,6 @@ class DBAccountOperater():
             return (True, account) if account else (False, None)
         except Exception as ex:
             raise ex
-
 
     async def save_account_token(self, sesssion: AsyncSession, account_token: DBAccountCertificateToken):
         try:
