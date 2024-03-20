@@ -24,20 +24,24 @@ jobs:
           cd ~/Desktop/myselfproject/supervisor_services/
           cd ./services/account-server/
           git pull
+
       - name: 更新环境
         run: |
           /bin/zsh
+          set -e
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
+          set +e
           pyenv virtualenv 3.12.2 account-server
+          set -e
           pyenv activate account-server
           python -m pip install -r ./requirements.txt
+
       - name: 测试
         run: |
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
           pyenv activate account-server
           python -m pytest ./tests
 
-          
       - name: 重启服务
         run: |
           cd ~/Desktop/myselfproject/supervisor_services/
