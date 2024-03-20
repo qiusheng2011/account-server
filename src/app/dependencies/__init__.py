@@ -1,18 +1,9 @@
 from .database import (
     async_sessionmaker,
-    init_async_db_connect_pool # 外部使用
+    init_async_db_connect_pool  # 外部使用
 )
 
 from sqlalchemy import orm
-
-def get_dbsessionmaker() -> orm.sessionmaker:
-    """
-
-    Returns:
-        orm.sessionmaker: _description_
-    """
-    from .database import DBSessionMaker
-    return DBSessionMaker
 
 
 def get_async_dbsessionmaker() -> async_sessionmaker:
