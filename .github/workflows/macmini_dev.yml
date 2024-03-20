@@ -25,7 +25,7 @@ jobs:
           cd ./services/account-server/
           git pull
 
-      - name: 更新环境
+      - name: 更新环境并测试
         run: |
           /bin/zsh
           set -e
@@ -35,11 +35,6 @@ jobs:
           pyenv activate account-server
           set -e
           python -m pip install -r ./requirements.txt
-
-      - name: 测试
-        run: |
-          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
-          pyenv activate account-server
           python -m pytest ./tests
 
       - name: 重启服务
