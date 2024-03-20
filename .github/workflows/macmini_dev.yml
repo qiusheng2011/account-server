@@ -25,6 +25,7 @@ jobs:
 
       - name: 更新环境并测试
         run: |
+          /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
           set +e
           pyenv virtualenv 3.12.2 account-server
@@ -35,6 +36,7 @@ jobs:
 
       - name: 重启服务
         run: |
+          /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/
           ./supervisorctl.sh status  'account_server:*' 
           ./supervisorctl.sh  restart 'account_server:*'
