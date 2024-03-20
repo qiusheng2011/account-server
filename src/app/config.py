@@ -28,7 +28,7 @@ class AppConfig(pydantic_settings.BaseSettings):
 
     # log
     log_dir: Optional[pydantic.DirectoryPath] = pathlib.Path(
-        f"{_CURRENT_DIR}/../../../logs/")
+        f"{_CURRENT_DIR}/../../../")
     log_prefix: str = APP_CONFIG_PREFIX
 
     log_server_url: Optional[pydantic.AnyUrl] = None
