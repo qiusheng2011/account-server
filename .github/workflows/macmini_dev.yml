@@ -25,7 +25,7 @@ jobs:
 
       - name: 更新环境并测试
         env:
-          ACCOUNT_SERVER_MYSQL_DSN: ${ { secrets.MAC_RUNNER_MYSQL_DSN } }
+          ACCOUNT_SERVER_MYSQL_DSN: ${{ secrets.MAC_RUNNER_MYSQL_DSN }}
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
