@@ -19,7 +19,7 @@ jobs:
     defaults:
       run:
         shell: /bin/zsh
-        working-directory: . ~/Desktop/myselfproject/supervisor_services/services/account-server/
+        working-directory: ~/Desktop/myselfproject/supervisor_services/services/account-server/
     steps:
       - name: 更新代码
         run: |
