@@ -1,13 +1,14 @@
 import os
+import sys
 import random
-from fastapi.testclient import TestClient
 import pytest
 from httpx import AsyncClient
 
+
+from src.app import appserver
+
+
 # TODO 从零创建数据库并测试
-
-
-from ..app import appserver
 
 
 class TestApiAccount():
@@ -28,7 +29,7 @@ class TestApiAccount():
     async def test_1_add_account_200(self, password, except_status,  async_client: AsyncClient):
         """ 测试
         """
-        #async with AsyncClient(app=appserver, base_url="http://localhost") as client:
+        # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
         client = async_client
         email = f"test_{random.randrange(1, 99999)}_{
             random.choice('abcdefghijk')}@test.test"

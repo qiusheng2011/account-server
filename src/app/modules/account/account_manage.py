@@ -3,38 +3,35 @@ import hashlib
 import logging
 
 from datetime import datetime, timedelta, timezone
-from pydantic import (
-    BaseModel
-)
-from sqlalchemy.ext.asyncio import (
-    async_sessionmaker as AsyncSessionFactory,
-    AsyncSession
-)
-from jose import JWTError, jwt
 
-from .model import Account
-from .dbmodel import DBAccount, DBAccountOperater, DBAccountCertificateToken
-from .exception import AccountExistError
-from ...tool import get_hash_password
+from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
+from jose import jwt
+
+from app.modules.account import model
+from app.modules.account import dbmodel
+from app.modules.account import exceptions
+from app.tool import tool
+
+logger = logging.getLogger(__name__)
 
 
 class AccountManager():
     """账户管理器
     """
 
-    def __init__(self, async_dbsessionmaker: AsyncSessionFactory):
+    def __init__(self, async_dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker):
         self.async_dbsessionmaker = async_dbsessionmaker
         self.logger = logging.getLogger(__name__)
 
-    async def register(self, account: Account):
+    async def register(self, account: model.Account):
         """注册一个账户
         """
         try:
-            dbaccount = DBAccount(**account.model_dump(exclude_unset=True))
+            dbaccount = dbmodel.DBAccount(**account.model_dump(exclude_unset=True))
             async with self.async_dbsessionmaker.begin() as async_session:
-                check_result = await DBAccountOperater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
+                check_result = await dbmodel.DBAccountOperater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
                 if check_result:
-                    raise AccountExistError()
+                    raise exceptions.AccountExistError()
                 async_session.add(dbaccount)
                 await async_session.flush()
                 account.aid = dbaccount.aid
@@ -42,10 +39,10 @@ class AccountManager():
         except Exception as ex:
             raise ex
 
-    def verify_account(self, account: Account, password: str):
+    def verify_account(self, account: model.Account, password: str):
         """ 验证账户
         """
-        if account.hash_password == get_hash_password(password):
+        if account.hash_password == tool.get_hash_password(password):
             return True
         else:
             return False
@@ -55,8 +52,8 @@ class AccountManager():
         """
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                is_exist, account = await DBAccountOperater.get_account_by_email(session=async_session, email=email)
-                return (True, Account.model_validate(account)) if is_exist else (False, None)
+                is_exist, account = await dbmodel.DBAccountOperater.get_account_by_email(session=async_session, email=email)
+                return (True, model.Account.model_validate(account)) if is_exist else (False, None)
         except Exception as ex:
             raise ex
 
@@ -66,25 +63,26 @@ class AccountManager():
         is_exist, account = await self.get_accounts_by_email(email)
         if not is_exist:
             return False, None
-        if not self.verify_account(account, password):
-            return False, None
-        return True, account
+        elif is_exist and account:
+            if not self.verify_account(account, password):
+                return False, None
+            return True, account
 
     async def authencicate_account_by_refresh_token(self, refresh_token: str):
 
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                is_exist, account = await DBAccountOperater.get_account_by_refresh_token(async_session, refresh_token)
-                return is_exist, Account.model_validate(account) if is_exist else None
+                is_exist, account = await dbmodel.DBAccountOperater.get_account_by_refresh_token(async_session, refresh_token)
+                return is_exist, model.Account.model_validate(account) if is_exist else None
         except Exception as ex:
             raise ex
 
-    def delete_account(self, account: Account):
+    def delete_account(self, account: model.Account):
         """物理删除一个账户的所有信息。 
         """
         pass
 
-    async def make_account_access_token(self, account: Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm="", refresh_token_expire_extra_minutes: int = 1440):
+    async def make_account_access_token(self, account: model.Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm="", refresh_token_expire_extra_minutes: int = 1440):
 
         now = datetime.now(timezone.utc)
         now_dt = now + \
@@ -106,23 +104,24 @@ class AccountManager():
                                 algorithm=token_algorithm)
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                await DBAccountOperater.save_account_token(async_session, DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
+                await dbmodel.DBAccountOperater.save_account_token(async_session, dbmodel.DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
         except Exception as ex:
             raise ex
 
         return encode_jwt, refresh_sub, int(now.timestamp())
 
-    async def get_account_by_token(self, token, token_secret_key: str = "", token_algorithm="") -> Optional[Account]:
+    async def get_account_by_token(self, token, token_secret_key: str = "", token_algorithm="") -> Optional[model.Account]:
         try:
             payload = jwt.decode(token, str(token_secret_key),
                                  algorithms=token_algorithm)
-            sub_token = payload.get("sub")
+            sub_token = payload.get("sub", "")
             expire_date = payload.get("exp", 0)
             utc_now = int(datetime.now(timezone.utc).timestamp())
             if utc_now >= expire_date:
                 return None
             async with self.async_dbsessionmaker.begin() as async_session:
-                dbaccount = await DBAccountOperater.get_account_by_token(async_session, sub_token)
-                return Account.model_validate(dbaccount) if dbaccount else None
+                dbaccount = await dbmodel.DBAccountOperater.get_account_by_token(async_session, sub_token)
+                return model.Account.model_validate(dbaccount) if dbaccount else None
         except Exception as ex:
-            return None
+            logger.critical(str(ex))
+            raise ex

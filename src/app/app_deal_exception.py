@@ -1,30 +1,27 @@
 import logging
 
-from loguru import logger
-from sqlalchemy.exc import (
-    DatabaseError
+import sqlalchemy.exc
+from fastapi import (
+    requests,
+    responses
 )
-from fastapi.responses import (
-    PlainTextResponse
-)
-from fastapi.requests import Request
 
+from app.application import appserver
 
-from .app import appserver
 
 logger = logging.getLogger(__name__)
 
 
-@appserver.exception_handler(DatabaseError)
-async def deal_db_database_error(request: Request, exc: Exception):
+@appserver.exception_handler(sqlalchemy.exc.DatabaseError)
+async def deal_db_database_error(request: requests.Request, exc: sqlalchemy.exc.DatabaseError):
     error_msg = f"数据库错误\t{request.url._url}\tsqlalchemy.errorcode={
         exc.code}\t{' '.join(exc.args)}"
     logger.critical(error_msg)
-    return PlainTextResponse("server error", status_code=500)
+    return responses.PlainTextResponse("server error", status_code=500)
 
 
 @appserver.exception_handler(RuntimeError)
-async def deal_exception(request: Request, exc: Exception):
+async def deal_exception(request: requests.Request, exc: RuntimeError):
     error_msg = f"运行错误\t{request.url._url}\t{' '.join(exc.args)}"
     logger.critical(error_msg)
-    return PlainTextResponse("server error", status_code=500)
+    return responses.PlainTextResponse("server error", status_code=500)

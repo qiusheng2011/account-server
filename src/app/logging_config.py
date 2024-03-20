@@ -1,6 +1,4 @@
-import os
-import pickle
-import struct
+
 from typing import Optional
 import logging
 from logging.handlers import (
@@ -13,9 +11,10 @@ from pydantic import AnyUrl
 import msgpack
 
 
-def seting_logging_config(server_name="",logfile_path="./", debug=False, log_server_url: Optional[AnyUrl] = None):
+def seting_logging_config(server_name="", logfile_path="./", debug=False, log_server_url: Optional[AnyUrl] = None):
     # 基础配置
-    log_formater = f"{server_name}\t"+"%(asctime)s\t%(levelname)s\t%(module)s\t%(message)s"
+    log_formater = f"{server_name}\t" + \
+        "%(asctime)s\t%(levelname)s\t%(module)s\t%(message)s"
     log_level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(level=log_level, format=log_formater)
     root_logger = logging.getLogger()
@@ -63,5 +62,6 @@ def make_udp_msgpack(self, record):
     d = self.format(record)
     bd = msgpack.packb({"msg": d})
     return bd
+
 
 DatagramHandler.makePickle = make_udp_msgpack

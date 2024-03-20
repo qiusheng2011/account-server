@@ -1,22 +1,16 @@
-import time
-import asyncio
 
-import uvicorn
 from fastapi import FastAPI
 
-from .routers import account
-from .logging_config import seting_logging_config
-from .config import setting_app_config, AppConfig
-from .dependencies import (
-    init_db_connect_pool,
-    init_async_db_connect_pool
-)
+from app.routers import account
+from app import logging_config
+from app import config
+from app import dependencies
+
 
 app_description = """
-这一个独立的账户服务。\n
-提供登陆和注册的相关账户功能。\n
+这一个独立的账户服务。
+提供登陆和注册的相关账户功能。
 其它服务不应当实现账户功能而是通过此服务获得 相应的账户id信息。
-
 """
 
 
@@ -27,22 +21,22 @@ appserver = FastAPI(
     openapi_url="/api/v1/openapi.json",
     swagger_ui_parameters={"syntaxHighlight.theme": "monokai"},
 )
-config = setting_app_config()
+app_config = config.setting_app_config()
 appserver.extra = {}
-appserver.extra.setdefault('config', config)
+appserver.extra.setdefault('config', app_config)
 
 # 异常注册
 
 # 日志配置
-seting_logging_config(
-    server_name=config.server_name,
-    logfile_path=config.log_path,
-    debug=config.debug, 
-    log_server_url=config.log_server_url
+logging_config.seting_logging_config(
+    server_name=app_config.server_name,
+    logfile_path=app_config.log_path,
+    debug=app_config.debug,
+    log_server_url=app_config.log_server_url
 )
-init_async_db_connect_pool(str(config.mysql_dsn), debug=config.debug)
+dependencies.init_async_db_connect_pool(
+    str(app_config.mysql_dsn), debug=app_config.debug)
 
-from .app_deal_exception import *
 
 appserver.include_router(account.account_router)
 

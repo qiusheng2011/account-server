@@ -1,8 +1,17 @@
+"""
+程序入口文件
+"""
+import os
+import sys
+
 import uvicorn
-from app import appserver
+import app
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 
 if __name__ == "__main__":
-    config = appserver.extra.get("config", None)
+    config = app.appserver.extra.get("config", None)
     uvicorn.run(
         "app:appserver",
         host=str(config.host),
