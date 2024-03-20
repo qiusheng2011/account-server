@@ -24,6 +24,8 @@ jobs:
           git pull
 
       - name: 更新环境并测试
+        env:
+          ACCOUNT_SERVER_MYSQL_DSN: ${ { secret.MAC_RUNNER_MYSQL_DSN } }
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
