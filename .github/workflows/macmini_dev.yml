@@ -13,21 +13,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  update_supervisor:
+  update_supervisor_server:
     runs-on: macOS
     timeout-minutes: 5
-    defaults:
-      run:
-        working-directory: ~/Desktop/myselfproject/supervisor_services/services/account-server/
+
     steps:
       - name: 更新代码
         run: |
+          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
           git pull
 
       - name: 更新环境并测试
         run: |
           /bin/zsh
           source ~/.zshrc
+          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
           set -e
           cd
           set +e
