@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 5
     defaults:
       run:
-        shell: sh
+        shell: zsh
         working-directory: ~/Desktop/myselfproject/supervisor_services/services/account-server/
     steps:
       - name: 更新代码
