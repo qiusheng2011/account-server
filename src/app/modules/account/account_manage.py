@@ -91,8 +91,7 @@ class AccountManager():
     async def make_account_access_token(self, account: model.Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm="", refresh_token_expire_extra_minutes: int = 1440):
 
         now = datetime.now(timezone.utc)
-        now_dt = now + \
-            timedelta(minutes=token_expire_minutes)
+        now_dt = now + timedelta(minutes=token_expire_minutes)
         # TODO 加盐优化
         info = f"asdkfjkldsf#{account.account_name}#werdsfsdf#{str(now_dt)}"
         sub = hashlib.sha256(info.encode("utf8")).hexdigest()
@@ -106,11 +105,15 @@ class AccountManager():
             "sub": sub,
             "exp": now_dt
         }
-        encode_jwt = jwt.encode(data, str(token_secret_key),
-                                algorithm=token_algorithm)
+        encode_jwt = jwt.encode(
+            data, str(token_secret_key), algorithm=token_algorithm)
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                await self.db_account_operater.save_account_token(async_session, dbmodel.DBAccountCertificateToken(aid=account.aid, token=sub, refresh_token=refresh_sub))
+                await self.db_account_operater.save_account_token(
+                    async_session, dbmodel.DBAccountCertificateToken(
+                        aid=account.aid, token=sub, refresh_token=refresh_sub
+                    )
+                )
         except Exception as ex:
             logger.critical(str(ex))
             raise ex
@@ -119,8 +122,8 @@ class AccountManager():
 
     async def get_account_by_token(self, token, token_secret_key: str = "", token_algorithm="") -> model.Account | None:
         try:
-            payload = jwt.decode(token, str(token_secret_key),
-                                 algorithms=token_algorithm)
+            payload = jwt.decode(token, str(token_secret_key), algorithms=token_algorithm)
+
             sub_token = payload.get("sub", "")
             expire_date = payload.get("exp", 0)
             utc_now = int(datetime.now(timezone.utc).timestamp())

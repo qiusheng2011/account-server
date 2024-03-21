@@ -19,4 +19,4 @@ CREATE TABLE IF NOT EXISTS `accounts_certificate_token` (
     UNIQUE KEY `token` (`token`),
     UNIQUE KEY `refresh_token` (`refresh_token`),
     CONSTRAINT `act_ibaid_1` FOREIGN KEY (`aid`) REFERENCES `accounts` (`aid`)
-) ENGINE = InnoDB COMMENT = '账户凭证表';
+) ENGINE = InnoDB COMMENT = "账户凭证表";
