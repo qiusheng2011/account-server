@@ -1,5 +1,6 @@
+"""日志配置
 
-from typing import Optional
+"""
 import logging
 from logging.handlers import (
     TimedRotatingFileHandler,
@@ -11,7 +12,7 @@ from pydantic import AnyUrl
 import msgpack
 
 
-def seting_logging_config(server_name="", logfile_path="./", debug=False, log_server_url: Optional[AnyUrl] = None):
+def seting_logging_config(server_name="", logfile_path="./", debug=False, log_server_url: AnyUrl | None = None):
     # 基础配置
     log_formater = f"{server_name}\t" + \
         "%(asctime)s\t%(levelname)s\t%(module)s\t%(message)s"
@@ -57,11 +58,8 @@ def seting_logging_config(server_name="", logfile_path="./", debug=False, log_se
         udp_handler.setFormatter(logging.Formatter(log_formater))
         root_logger.addHandler(udp_handler)
 
-
-def make_udp_msgpack(self, record):
-    d = self.format(record)
-    bd = msgpack.packb({"msg": d})
-    return bd if bd else b""
-
-
-DatagramHandler.makePickle = make_udp_msgpack
+    def make_udp_msgpack(self, record):
+        d = self.format(record)
+        bd = msgpack.packb({"msg": d})
+        return bd if bd else b""
+    DatagramHandler.makePickle = make_udp_msgpack

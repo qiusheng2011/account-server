@@ -1,4 +1,3 @@
-from typing import Optional
 import pydantic
 
 
@@ -22,11 +21,11 @@ class Account(pydantic.BaseModel):
             hash_passowrd:
     """
 
-    aid: Optional[int] = pydantic.Field(default=None, title="账户id")
+    aid: int | None = pydantic.Field(default=None, title="账户id")
     email: str = pydantic.Field(title="邮箱")
     account_name: str = pydantic.Field(title="账户名")
     hash_password: str = pydantic.Field(title="hash密码")
-    token: Optional[AccountToken] = None
+    token: AccountToken | None = None
 
     class Config:
         from_attributes = True
