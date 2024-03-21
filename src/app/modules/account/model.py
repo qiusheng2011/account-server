@@ -12,6 +12,15 @@ class AccountToken(pydantic.BaseModel):
 
 
 class Account(pydantic.BaseModel):
+    """ 账户
+
+        attribute:
+            aid:
+            title:
+            email:
+            account_name:
+            hash_passowrd:
+    """
 
     aid: Optional[int] = pydantic.Field(default=None, title="账户id")
     email: str = pydantic.Field(title="邮箱")
