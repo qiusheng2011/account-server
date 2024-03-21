@@ -10,6 +10,8 @@ APP_CONFIG_PREFIX = "account_server"
 
 
 class AppConfig(pydantic_settings.BaseSettings):
+    """ 配置
+    """
 
     # server
     server_name: str = "account_server"
