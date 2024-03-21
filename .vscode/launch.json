@@ -10,7 +10,7 @@
       "request": "launch",
       "module": "pytest",
       "args": ["./tests"],
-      "cwd": "${workspaceFolder}/src/",
+      "cwd": "${workspaceFolder}/",
       "env": {
         "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86:3306/test_tts"
       }
@@ -42,9 +42,9 @@
       "name": "debugApp",
       "type": "debugpy",
       "request": "launch",
-      "program": "./main.py",
+      "program": "./src/main.py",
       "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}/src/",
+      "cwd": "${workspaceFolder}/",
       "env": {
         "account_server_mysql_dsn": "mysql+aiomysql://tts:askdjflwe234kjkjlr2332f@192.168.196.86/tts",
         "account_server_port": "8000",

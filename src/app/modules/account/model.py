@@ -1,11 +1,8 @@
 from typing import Optional
-from pydantic import (
-    BaseModel,
-    Field
-)
+import pydantic
 
 
-class AccountToken(BaseModel):
+class AccountToken(pydantic.BaseModel):
 
     token: str = ""
     refresh_token: str = ""
@@ -14,12 +11,21 @@ class AccountToken(BaseModel):
         from_attributes = True
 
 
-class Account(BaseModel):
+class Account(pydantic.BaseModel):
+    """ 账户
 
-    aid: Optional[int] = Field(default=None, title="账户id")
-    email: str = Field(title="邮箱")
-    account_name: str = Field(title="账户名")
-    hash_password: str = Field(title="hash密码")
+        attribute:
+            aid:
+            title:
+            email:
+            account_name:
+            hash_passowrd:
+    """
+
+    aid: Optional[int] = pydantic.Field(default=None, title="账户id")
+    email: str = pydantic.Field(title="邮箱")
+    account_name: str = pydantic.Field(title="账户名")
+    hash_password: str = pydantic.Field(title="hash密码")
     token: Optional[AccountToken] = None
 
     class Config:

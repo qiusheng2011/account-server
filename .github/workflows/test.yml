@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: "${{ github.workflow }} @ ${{github.event.pull_request.head.label || github.head_ref || github.ref}}"
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -20,8 +20,9 @@ jobs:
       matrix:
         python-version: ["3.12"]
     env:
-      account_server_mysql_dsn: "mysql+aiomysql://root:daskjfelwjre234klfe@127.0.0.1:3306/tts"
-
+      ACCOUNT_SERVER_MYSQL_DSN: "mysql+aiomysql://root:daskjfelwjre234klfe@127.0.0.1:3306/tts"
+      ACCOUNT_SERVER_LOG_DIR: "./logs"
+      ACCOUNT_SERVER_PORT: 8700
     services:
       mariadb:
         image: mariadb:latest
@@ -34,10 +35,9 @@ jobs:
           MYSQL_ROOT_PASSWORD: daskjfelwjre234klfe
           options: --name=mariadbtest --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
         volumes:
-        - docker-entrypoint-initdb.d:/tmp/sql
+          - docker-entrypoint-initdb.d:/tmp/sql
 
     steps:
-
       - name: checkout
         uses: actions/checkout@v4
       - name: init db table by sql
@@ -66,16 +66,15 @@ jobs:
           cat requirements.txt
           pip install -r requirements.txt
 
-      - name: run test
+      - name: run test【测试】
         run: |
-          cd src/
+          mkdir logs
           pytest  tests/
-      
+
       - name: run app server
         run: |
-          cd src/
-          nohup python main.py &
-      
+          nohup python src/main.py &
+
       - name: run performance test
         run: |
-          python -m locust  -H http://127.0.0.1:8700 -f ./src/tests/apiperformance_test/locustfile.py --headless -u 10 -r 200 -t 1m
+          python -m locust  -H http://127.0.0.1:8700 -f ./tests/apiperformance_test/locustfile.py --headless -u 10 -r 200 -t 1m

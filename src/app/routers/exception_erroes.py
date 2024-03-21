@@ -1,12 +1,10 @@
 import logging
-from typing import Any, Dict
-from typing_extensions import Annotated, Doc
 from fastapi import HTTPException, status
 
 logger = logging.getLogger()
 
 
-class PasswordIllegalHTTPException(HTTPException):
+class PasswordIllegalHTTPError(HTTPException):
     """ 密码问题
     """
 
@@ -14,7 +12,7 @@ class PasswordIllegalHTTPException(HTTPException):
         super().__init__(status_code=422, detail="密码不合规")
 
 
-class AuthenticateUserFailed(HTTPException):
+class AuthenticateUserFailedError(HTTPException):
     """ 验证失败
     """
 
@@ -24,7 +22,7 @@ class AuthenticateUserFailed(HTTPException):
                          headers={"WWW-Authenticate": "Bearer"})
 
 
-class AuthenticateFailed(HTTPException):
+class AuthenticateFailedError(HTTPException):
     """ 验证失败
     """
 

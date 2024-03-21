@@ -1,13 +1,20 @@
+""" API测试-pytest脚本
+
+当前测试范围：
+    注册，登陆，个人信息
+"""
+
 import os
+import sys
 import random
-from fastapi.testclient import TestClient
 import pytest
 from httpx import AsyncClient
 
+
+from src.app import appserver
+
+
 # TODO 从零创建数据库并测试
-
-
-from ..app import appserver
 
 
 class TestApiAccount():
@@ -28,18 +35,17 @@ class TestApiAccount():
     async def test_1_add_account_200(self, password, except_status,  async_client: AsyncClient):
         """ 测试
         """
-        #async with AsyncClient(app=appserver, base_url="http://localhost") as client:
+        # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
         client = async_client
-        email = f"test_{random.randrange(1, 99999)}_{
-            random.choice('abcdefghijk')}@test.test"
-        account_name = f"{random.choice(['asdf', 'sdfsde'])}{
-            random.randrange(1, 99999)}"
-        register_response = await client.post("/account/register", data={
+        email = f"test_{random.randrange(1, 99999)}_{random.choice('abcdefghijk')}@test.test"
+        account_name = f"{random.choice(['asdf', 'sdfsde'])}{random.randrange(1, 99999)}"
+        post_data = {
             "email": email,
             "account_name": account_name,
             "password": password
-        })
-        assert register_response.status_code == except_status
+        }
+        register_response = await client.post("/account/register", data=post_data)
+        assert register_response.status_code == except_status, f'{str(post_data)}'
         if register_response.status_code == 200:
             pass
         else:

@@ -13,18 +13,36 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  update_supervisor:
+  update_supervisor_server:
     runs-on: macOS
     timeout-minutes: 5
 
     steps:
-      - name: git pull
+      - name: 更新代码
+        run: |
+          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
+          git pull
+
+      - name: 更新环境
+        run: |
+          /bin/zsh
+          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
+          pyenv virtualenv 3.12.2 account-server || true
+          pyenv activate account-server || true
+          python -m pip install -r ./requirements.txt
+
+      - name: 测试
+        env:
+          ACCOUNT_SERVER_MYSQL_DSN: ${{ secrets.MAC_RUNNER_MYSQL_DSN }}
+        run: |
+          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
+          pyenv activate account-server || true
+          python -m pytest ./tests
+
+      - name: 重启服务
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/
-          cd ./services/account-server/
-          git pull
-          cd ../../
           ./supervisorctl.sh status  'account_server:*' 
           ./supervisorctl.sh  restart 'account_server:*'
           ./supervisorctl.sh status  'account_server:*'
