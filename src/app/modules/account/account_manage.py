@@ -28,9 +28,11 @@ class AccountManager():
         """注册一个账户
         """
         try:
-            dbaccount = dbmodel.DBAccount(**account.model_dump(exclude_unset=True))
+            dbaccount = dbmodel.DBAccount(
+                **account.model_dump(exclude_unset=True))
             async with self.async_dbsessionmaker.begin() as async_session:
-                check_result = await self.db_account_operater.check_accout_by_email_and_account_name(async_session, dbaccount.email, dbaccount.account_name)
+                check_result = await self.db_account_operater.check_accout_by_email_and_account_name(
+                    async_session, dbaccount.email, dbaccount.account_name)
                 if check_result:
                     raise exception_errors.AccountExistError()
                 async_session.add(dbaccount)
@@ -73,7 +75,8 @@ class AccountManager():
 
         try:
             async with self.async_dbsessionmaker.begin() as async_session:
-                is_exist, account = await self.db_account_operater.get_account_by_refresh_token(async_session, refresh_token)
+                is_exist, account = await self.db_account_operater.get_account_by_refresh_token(
+                    async_session, refresh_token)
                 return is_exist, model.Account.model_validate(account) if is_exist else None
         except Exception as ex:
             raise ex
@@ -94,7 +97,8 @@ class AccountManager():
 
         refresh_dt = now_dt + \
             timedelta(minutes=refresh_token_expire_extra_minutes)
-        refresh_info = f"asdkfjkldsf#{account.email}#werdsfsdf#{str(refresh_dt)}"
+        refresh_info = f"asdkfjkldsf#{
+            account.email}#werdsfsdf#{str(refresh_dt)}"
         refresh_sub = hashlib.sha256(refresh_info.encode("utf8")).hexdigest()
         data = {
             "sub": sub,
