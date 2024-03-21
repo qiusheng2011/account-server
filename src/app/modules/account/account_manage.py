@@ -98,8 +98,7 @@ class AccountManager():
 
         refresh_dt = now_dt + \
             timedelta(minutes=refresh_token_expire_extra_minutes)
-        refresh_info = f"asdkfjkldsf#{
-            account.email}#werdsfsdf#{str(refresh_dt)}"
+        refresh_info = f"asdkfjkldsf#{account.email}#werdsfsdf#{str(refresh_dt)}"
         refresh_sub = hashlib.sha256(refresh_info.encode("utf8")).hexdigest()
         data = {
             "sub": sub,

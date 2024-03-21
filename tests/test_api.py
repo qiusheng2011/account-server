@@ -4,8 +4,7 @@
     注册，登陆，个人信息
 """
 
-import os
-import sys
+import time
 import random
 import pytest
 from httpx import AsyncClient
@@ -37,8 +36,9 @@ class TestApiAccount():
         """
         # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
         client = async_client
-        email = f"test_{random.randrange(1, 99999)}_{random.choice("abcdefghijk")}@test.test"
-        account_name = f"{random.choice(["asdf", "sdfsde"])}{random.randrange(1, 99999)}"
+        timestamp_s = int(time.time())
+        email = f"test_{timestamp_s}_{random.randrange(1, 99999)}_{random.choice('abcdefghijk')}@test.test"
+        account_name = f"{random.choice(['asdf', 'sdfsde'])}{random.randrange(1, 99999)}"
         post_data = {
             "email": email,
             "account_name": account_name,
