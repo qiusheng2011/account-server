@@ -1,3 +1,7 @@
+"""API性能测试-locust脚本
+
+"""
+
 import random
 from locust import HttpUser, task
 

@@ -1,3 +1,9 @@
+""" API测试-pytest脚本
+
+当前测试范围：
+    注册，登陆，个人信息
+"""
+
 import os
 import sys
 import random
