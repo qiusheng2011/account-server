@@ -1,3 +1,7 @@
+"""API性能测试-locust脚本
+
+"""
+
 import random
 from locust import HttpUser, task
 
@@ -14,10 +18,10 @@ class PtestAccountRegister(HttpUser):
     @task
     def register_user(self):
         password = "abcABC@123"
-        email = f"test_{random.randrange(1, 99999)}_{
-            random.choice('abcdefghijk')}@test.test"
-        account_name = f"{random.choice(['asdf', 'sdfsde'])}{
-            random.randrange(1, 99999)}"
+        email = (f"test_{random.randrange(1, 99999)}_"
+                 f"{random.choice('abcdefghijk')}@test.test")
+        account_name = (f"{random.choice(['asdf', 'sdfsde'])}"
+                        f"{random.randrange(1, 99999)}")
         register_response = self.client.post("/account/register", data=dict(
             email=email,
             account_name=account_name,
@@ -29,6 +33,9 @@ class PtestAccountRegister(HttpUser):
 
 class PtestAccountSignIn(HttpUser):
 
+    account_name: str = ""
+    email: str = ""
+
     def on_start(self):
         self.account_name = f"test0{random.randrange(0, 99999999)}"
         self.email = f"{self.account_name}@test.com"
@@ -39,7 +46,9 @@ class PtestAccountSignIn(HttpUser):
         ))
 
     @task
-    def get_token(self):
+    def test_get_token(self):
+        """登陆并访问个人信息
+        """
         signin_response = self.client.post("/account/v2/authorization", data={
             "password": "abcABC@123",
             "username": self.email,

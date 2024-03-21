@@ -2,9 +2,9 @@ fastapi[all]
 sqlalchemy==2.0.27
 aiomysql
 httpx
-# pytest
+pytest
 pydantic_settings
-# locust
+locust
 passlib[bcrypt]
 python-jose
 loguru

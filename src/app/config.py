@@ -28,7 +28,7 @@ class AppConfig(pydantic_settings.BaseSettings):
 
     # log
     log_dir: Optional[pydantic.DirectoryPath] = pathlib.Path(
-        f"{_CURRENT_DIR}/../../../logs/")
+        f"{_CURRENT_DIR}/../../../")
     log_prefix: str = APP_CONFIG_PREFIX
 
     log_server_url: Optional[pydantic.AnyUrl] = None
@@ -57,6 +57,8 @@ class AppConfig(pydantic_settings.BaseSettings):
     @pydantic.computed_field
     @functools.cached_property
     def log_path(self) -> str:
+        """ log文件完整路径
+        """
         if self.log_dir:
             return f"{self.log_dir.absolute()}/{self.log_prefix}_{self.port}"
         else:
@@ -67,6 +69,8 @@ _APP_CONFIG: Optional[AppConfig] = None
 
 
 def get_app_config() -> AppConfig:
+    """获取配置
+    """
     global _APP_CONFIG
     if not _APP_CONFIG:
         _APP_CONFIG = AppConfig()

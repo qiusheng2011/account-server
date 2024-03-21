@@ -1,5 +1,9 @@
-"""
-程序入口文件
+"""程序入口文件
+
+程序启动文件,任意位置使用即可启动
+
+示例
+`python3  */src/main.py`
 """
 import os
 import sys
