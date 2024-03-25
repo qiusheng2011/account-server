@@ -29,7 +29,7 @@ jobs:
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
           pyenv virtualenv 3.12.2 account-server || true
           pyenv activate account-server || true
-          python -m pip install -r ./requirements.txt
+          python -m pip install -Ur ./requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
 
       - name: 测试
         env:
