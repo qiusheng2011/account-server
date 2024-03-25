@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - preview
+      - beta
 permissions:
   contents: read
 
