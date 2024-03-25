@@ -64,7 +64,7 @@ jobs:
       - name: install requirement.txt
         run: |
           cat requirements.txt
-          pip install -r requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
+          pip install -r requirements.txt 
 
       - name: run test【测试】
         run: |
