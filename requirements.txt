@@ -1,5 +1,5 @@
 fastapi[all]
-sqlalchemy==2.0.27
+sqlalchemy
 aiomysql
 httpx
 pytest
