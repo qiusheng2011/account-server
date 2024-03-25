@@ -1,4 +1,3 @@
-from typing import Optional
 import functools
 
 import pydantic
@@ -11,6 +10,8 @@ APP_CONFIG_PREFIX = "account_server"
 
 
 class AppConfig(pydantic_settings.BaseSettings):
+    """ 配置
+    """
 
     # server
     server_name: str = "account_server"
@@ -27,15 +28,14 @@ class AppConfig(pydantic_settings.BaseSettings):
     token_algorithm: str = "HS256"
 
     # log
-    log_dir: Optional[pydantic.DirectoryPath] = pathlib.Path(
+    log_dir: pydantic.DirectoryPath | None = pathlib.Path(
         f"{_CURRENT_DIR}/../../../")
     log_prefix: str = APP_CONFIG_PREFIX
 
-    log_server_url: Optional[pydantic.AnyUrl] = None
-
+    log_server_url: pydantic.AnyUrl | None = None
     # DB
     mysql_dsn: pydantic.MySQLDsn = pydantic.Field(default=None)
-    mysql_connect_args: Optional[dict] = {
+    mysql_connect_args: dict | None = {
         "connect_timeout": 3
     }
 
@@ -65,7 +65,7 @@ class AppConfig(pydantic_settings.BaseSettings):
             return ""
 
 
-_APP_CONFIG: Optional[AppConfig] = None
+_APP_CONFIG: AppConfig | None = None
 
 
 def get_app_config() -> AppConfig:

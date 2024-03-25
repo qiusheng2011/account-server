@@ -19,8 +19,8 @@ class PtestAccountRegister(HttpUser):
     def register_user(self):
         password = "abcABC@123"
         email = (f"test_{random.randrange(1, 99999)}_"
-                 f"{random.choice('abcdefghijk')}@test.test")
-        account_name = (f"{random.choice(['asdf', 'sdfsde'])}"
+                 f"{random.choice("abcdefghijk")}@test.test")
+        account_name = (f"{random.choice(["asdf", "sdfsde"])}"
                         f"{random.randrange(1, 99999)}")
         register_response = self.client.post("/account/register", data=dict(
             email=email,

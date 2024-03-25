@@ -4,8 +4,7 @@
     注册，登陆，个人信息
 """
 
-import os
-import sys
+import time
 import random
 import pytest
 from httpx import AsyncClient
@@ -28,8 +27,8 @@ class TestApiAccount():
     @pytest.mark.parametrize("password,except_status", [
         ("ABCdsf@123", 200),
         ("123", 422),
-        ('abc123', 422),
-        ('ABCdsf123', 422)
+        ("abc123", 422),
+        ("ABCdsf123", 422)
     ])
     @pytest.mark.asyncio
     async def test_1_add_account_200(self, password, except_status,  async_client: AsyncClient):
@@ -37,7 +36,8 @@ class TestApiAccount():
         """
         # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
         client = async_client
-        email = f"test_{random.randrange(1, 99999)}_{random.choice('abcdefghijk')}@test.test"
+        timestamp_s = int(time.time())
+        email = f"test_{timestamp_s}_{random.randrange(1, 99999)}_{random.choice('abcdefghijk')}@test.test"
         account_name = f"{random.choice(['asdf', 'sdfsde'])}{random.randrange(1, 99999)}"
         post_data = {
             "email": email,
@@ -45,7 +45,7 @@ class TestApiAccount():
             "password": password
         }
         register_response = await client.post("/account/register", data=post_data)
-        assert register_response.status_code == except_status, f'{str(post_data)}'
+        assert register_response.status_code == except_status, f"{str(post_data)}"
         if register_response.status_code == 200:
             pass
         else:

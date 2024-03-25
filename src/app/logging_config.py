@@ -1,5 +1,7 @@
+"""日志配置
 
-from typing import Optional
+"""
+
 import logging
 from logging.handlers import (
     TimedRotatingFileHandler,
@@ -11,20 +13,29 @@ from pydantic import AnyUrl
 import msgpack
 
 
-def seting_logging_config(server_name="", logfile_path="./", debug=False, log_server_url: Optional[AnyUrl] = None):
+def seting_logging_config(
+    server_name="",
+    logfile_path="./",
+    debug=False,
+    log_server_url: AnyUrl | None = None
+):
     # 基础配置
-    log_formater = f"{server_name}\t" + \
-        "%(asctime)s\t%(levelname)s\t%(module)s\t%(message)s"
+    log_formater = (f"{server_name}\t"
+                    "%(asctime)s\t%(levelname)s\t%(module)s\t%(message)s")
     log_level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(level=log_level, format=log_formater)
     root_logger = logging.getLogger()
     LOGGING_CONFIG["formatters"]["default"]["fmt"] = log_formater
-    LOGGING_CONFIG["formatters"]["access"]["fmt"] = f"{server_name}\t"+"%(asctime)s\t%(levelname)s\t\
-        %(client_addr)s \t%(request_line)s\t%(status_code)s"
+    LOGGING_CONFIG["formatters"]["access"]["fmt"] = (f"{server_name}\t"
+                                                     "%(asctime)s\t"
+                                                     "%(levelname)s\t"
+                                                     "%(client_addr)s\t"
+                                                     "%(request_line)s\t"
+                                                     "%(status_code)s")
     # uvicorn log config
     if not log_server_url:
         LOGGING_CONFIG["handlers"]["access_file"] = {
-            "class": 'logging.handlers.TimedRotatingFileHandler',
+            "class": "logging.handlers.TimedRotatingFileHandler",
             "formatter": "access",
             "level": "INFO",
             "filename": f"{logfile_path}_access.log",
@@ -57,11 +68,8 @@ def seting_logging_config(server_name="", logfile_path="./", debug=False, log_se
         udp_handler.setFormatter(logging.Formatter(log_formater))
         root_logger.addHandler(udp_handler)
 
-
-def make_udp_msgpack(self, record):
-    d = self.format(record)
-    bd = msgpack.packb({"msg": d})
-    return bd if bd else b""
-
-
-DatagramHandler.makePickle = make_udp_msgpack
+    def make_udp_msgpack(self, record):
+        d = self.format(record)
+        bd = msgpack.packb({"msg": d})
+        return bd if bd else b""
+    DatagramHandler.makePickle = make_udp_msgpack

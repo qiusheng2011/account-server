@@ -1,3 +1,4 @@
+import logging
 from typing import (
     Optional,
     Tuple
@@ -7,6 +8,8 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 
 from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession
+
+logger = logging.getLogger(__name__)
 
 
 class Base(AsyncAttrs, orm.DeclarativeBase):
@@ -22,7 +25,7 @@ class DBAccount(Base):
     hash_password: orm.Mapped[str] = orm.mapped_column(sa.String(64))
     register_time: orm.Mapped[datetime] = orm.mapped_column(sa.TIMESTAMP)
 
-    token = orm.Relationship('DBAccountCertificateToken',
+    token = orm.Relationship("DBAccountCertificateToken",
                              uselist=False, back_populates="account", lazy="joined")
 
 
@@ -30,12 +33,12 @@ class DBAccountCertificateToken(Base):
     __tablename__ = "accounts_certificate_token"
 
     aid: orm.Mapped[int] = orm.mapped_column(
-        sa.ForeignKey('accounts.aid'), primary_key=True)
+        sa.ForeignKey("accounts.aid"), primary_key=True)
     token: orm.Mapped[str] = orm.mapped_column(unique=True)
     refresh_token: orm.Mapped[str] = orm.mapped_column(unique=True)
 
     account = orm.Relationship(
-        'DBAccount', uselist=False, back_populates="token")
+        "DBAccount", uselist=False, back_populates="token")
 
 
 class DBAccountOperater():
@@ -48,6 +51,7 @@ class DBAccountOperater():
             data = result.first()
             return True if data else False
         except Exception as ex:
+            logger.critical(str(ex))
             raise ex
 
     async def get_account_by_email(self, session: AsyncSession, email: str) -> Tuple[bool, Optional[DBAccount]]:
@@ -58,6 +62,7 @@ class DBAccountOperater():
             account = results.scalar_one_or_none()
             return (True, account) if account else (False, None)
         except Exception as ex:
+            logger.critical(str(ex))
             raise ex
 
     async def get_account_by_refresh_token(self, session: AsyncSession, refresh_token: str):
@@ -68,12 +73,14 @@ class DBAccountOperater():
             account = results.scalar_one_or_none()
             return (True, account) if account else (False, None)
         except Exception as ex:
+            logger.critical(str(ex))
             raise ex
 
     async def save_account_token(self, sesssion: AsyncSession, account_token: DBAccountCertificateToken):
         try:
             await sesssion.merge(account_token)
         except Exception as ex:
+            logger.critical(str(ex))
             raise ex
 
     async def get_account_by_token(self, session: AsyncSession, token: str) -> Optional[DBAccount]:
@@ -85,4 +92,5 @@ class DBAccountOperater():
             dbaccount = dbac_token.account if dbac_token else None
             return dbaccount if dbaccount else None
         except Exception as ex:
+            logger.critical(str(ex))
             raise ex

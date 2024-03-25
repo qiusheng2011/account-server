@@ -1,3 +1,5 @@
+""" application server
+"""
 
 from fastapi import FastAPI
 
@@ -17,35 +19,38 @@ app_description = """
 appserver = FastAPI(
     title="AccountAppServer(账号服务)",
     description=app_description,
-    version='0.0.1',
+    version="0.0.1",
     openapi_url="/api/v1/openapi.json",
     swagger_ui_parameters={"syntaxHighlight.theme": "monokai"},
 )
 app_config = config.get_app_config()
 appserver.extra = {}
-appserver.extra.setdefault('config', app_config)
-
-# 异常注册
+appserver.extra.setdefault("config", app_config)
 
 # 日志配置
 logging_config.seting_logging_config(
     server_name=app_config.server_name,
     logfile_path=app_config.log_path,
     debug=app_config.debug,
-    log_server_url=app_config.log_server_url
-)
+    log_server_url=app_config.log_server_url)
+
+# 数据库初始化
 dependencies.init_async_db_connect_pool(
     str(app_config.mysql_dsn), debug=app_config.debug)
 
-
+# 导入API路由
 appserver.include_router(account.account_router)
 
 
 @appserver.get("/", tags=["ServerHealth"], include_in_schema=False)
 async def root():
+    """根路径
+    """
     return {"message": "account appserver!"}
 
 
 @appserver.get("/health", tags=["ServerHealth"], include_in_schema=False)
 async def health():
+    """健康检查
+    """
     return {"status": 0, "message": "ok"}
