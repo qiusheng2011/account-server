@@ -20,4 +20,4 @@ def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS, debug=False):
         pool_pre_ping=True,
         pool_timeout=10
     )
-    AsyncDBsessionMaker = async_sessionmaker(bind=engine)
+    AsyncDBsessionMaker = async_sessionmaker(autoflush=True, bind=engine)
