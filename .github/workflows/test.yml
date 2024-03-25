@@ -1,4 +1,4 @@
-name: "测试"
+name: "服务级别测试"
 on:
   workflow_dispatch:
   push:
