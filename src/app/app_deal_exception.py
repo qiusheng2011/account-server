@@ -25,3 +25,4 @@ async def deal_runtime_error(request: requests.Request, exc: RuntimeError):
     error_msg = f"运行错误\t{request.url._url}\t{" ".join(exc.args)}"
     logger.critical(error_msg)
     return responses.PlainTextResponse("server error", status_code=500)
+
