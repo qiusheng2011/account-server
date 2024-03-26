@@ -38,7 +38,14 @@ python -m locust  -H http://127.0.0.1:8700 -f ./tests/apiperformance_test/locust
 
  ## 部署
 
+ ###  依赖
+
+  - python: >3.12
+
+  - python-sitepackages: 查看 [requirements.txt](./requirements.txt)
+
  ### 部署方式
+
 
  #### 容器部署
 
