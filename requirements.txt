@@ -2,11 +2,12 @@ fastapi[all]
 sqlalchemy
 aiomysql
 httpx
-pytest
 pydantic_settings
 locust
 passlib[bcrypt]
 python-jose
 loguru
 msgpack
+# 测试
 pytest-asyncio
+pytest
