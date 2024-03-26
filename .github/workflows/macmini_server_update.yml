@@ -21,6 +21,7 @@ jobs:
       - name: 更新代码
         run: |
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
+          git checkout ${GITHUB_REF#refs/heads/}
           git pull
 
       - name: 更新环境
