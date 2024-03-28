@@ -6,10 +6,10 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
 from jose import jwt, exceptions as jose_exceptions
 
-from src.app.modules.account import model
-from src.app.modules.account import dbmodel
-from src.app.modules.account import exception_errors
-from src.app.tool import tool
+from app.modules.account import model
+from app.modules.account import dbmodel
+from app.modules.account import exception_errors
+from app.tool import tool
 
 logger = logging.getLogger(__name__)
 

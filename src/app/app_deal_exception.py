@@ -6,7 +6,7 @@ from fastapi import (
     responses
 )
 
-from src.app.application import appserver
+from app.application import appserver
 
 
 logger = logging.getLogger(__name__)

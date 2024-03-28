@@ -13,24 +13,24 @@ from fastapi import (
 import pydantic
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
 
-from src.app import dependencies
-from src.app.tool import tool
-from src.app.modules import account
-from src.app.modules.account import account_manage
-from src.app.routers import router_base
-from src.app.routers import exception_errors as routers_exceptions
+from app import dependencies
+from app.tool import tool
+from app.modules import account
+from app.modules.account import account_manage
+from app.routers import router_base
+from app.routers import exception_errors as routers_exceptions
 oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="/v2/authorization")
 account_router = fastapi.APIRouter(prefix="/account", tags=["account"])
 logger = logging.getLogger(__name__)
 
 
-email_pattern = r"^[a-zA-Z0-9.+-_%]+@[a-zA-Z0-9.+-_%]+\.[a-zA-Z]{2,50}$"
+email_pattern = r"^[a-zA-Z0-9.+-_%]+@[a-zA-Z0-9.+-_%]+\.[a-zA-Z]+$"
 password_pattern = r"^(?=.*[!@#$%^&*(),.?\":{}|<>])(?=.*[a-z])(?=.*[A-Z]).{8,16}$"
 account_name_pattern = r"[a-zA-Z0-9\u4E00-\u9FFF]{2,20}"
 
 
 @account_router.post("/register", response_model=router_base.BaseReponseModel)
-async def account_register(email: str = fastapi.Form(pattern=email_pattern),
+async def account_register(email: str = fastapi.Form(pattern=email_pattern, max_length=50),
                            account_name: str = fastapi.Form(
                                pattern=account_name_pattern),
                            password: str = fastapi.Form(pattern=r".{8,16}"),
@@ -50,11 +50,8 @@ async def account_register(email: str = fastapi.Form(pattern=email_pattern),
             hash_password=tool.get_hash_password(password)
         )
         await account_manager.register(new_account)
-    except account.AccountExistError as ex:
-        return {
-            "status": 4,
-            "message": str(ex)
-        }
+    except account.AccountExistError:
+        raise routers_exceptions.AccountExistedHttpError()
 
     return {
         "status": 1,

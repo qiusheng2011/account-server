@@ -3,10 +3,10 @@
 
 from fastapi import FastAPI
 
-from src.app.routers import account
-from src.app import logging_config
-from src.app import config
-from src.app import dependencies
+from app.routers import account
+from app import logging_config
+from app import config
+from app import dependencies
 
 
 app_description = """

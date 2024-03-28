@@ -6,7 +6,7 @@ Use tts;
 CREATE TABLE IF NOT EXISTS `accounts` (
     `aid` INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT "账户内在id",
     `email` VARCHAR (50) NOT NULL UNIQUE KEY COMMENT "账户email",
-    `account_name` VARCHAR (20) NOT NULL UNIQUE KEY COMMENT "账户名称",
+    `account_name` VARCHAR (50) NOT NULL UNIQUE KEY COMMENT "账户名称",
     `hash_password` CHAR (64) NOT NULL COMMENT "账户密码hash值",
     `register_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT "注册时间"
 ) ENGINE = InnoDB COMMENT "账户表";

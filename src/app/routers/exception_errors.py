@@ -6,12 +6,19 @@ from fastapi import HTTPException, status
 logger = logging.getLogger()
 
 
+class AccountExistedHttpError(HTTPException):
+    """账户已存在"""
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(status_code=409, detail="账户已存在无法注册,请修改邮箱或者用户名")
+
+
 class PasswordIllegalHTTPError(HTTPException):
     """ 密码问题
     """
 
     def __init__(self, *args: object) -> None:
-        super().__init__(status_code=422, detail="密码不合规")
+        super().__init__(status_code=422, detail="密码不合规", *args)
 
 
 class AuthenticateUserFailedError(HTTPException):

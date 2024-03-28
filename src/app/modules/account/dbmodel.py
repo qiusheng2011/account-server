@@ -22,7 +22,7 @@ class DBAccount(Base):
 
     aid: orm.Mapped[int] = orm.mapped_column(primary_key=True)
     email: orm.Mapped[str] = orm.mapped_column(sa.String(50))
-    account_name: orm.Mapped[str] = orm.mapped_column(sa.String(20))
+    account_name: orm.Mapped[str] = orm.mapped_column(sa.String(50))
     hash_password: orm.Mapped[str] = orm.mapped_column(sa.String(64))
     register_time: orm.Mapped[datetime] = orm.mapped_column(
         sa.TIMESTAMP, default=func.now())
