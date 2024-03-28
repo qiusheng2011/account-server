@@ -24,13 +24,13 @@ account_router = fastapi.APIRouter(prefix="/account", tags=["account"])
 logger = logging.getLogger(__name__)
 
 
-email_pattern = r"^[a-zA-Z0-9.+-_%]+@[a-zA-Z0-9.+-_%]+\.[a-zA-Z]{2,50}$"
+email_pattern = r"^[a-zA-Z0-9.+-_%]+@[a-zA-Z0-9.+-_%]+\.[a-zA-Z]+$"
 password_pattern = r"^(?=.*[!@#$%^&*(),.?\":{}|<>])(?=.*[a-z])(?=.*[A-Z]).{8,16}$"
 account_name_pattern = r"[a-zA-Z0-9\u4E00-\u9FFF]{2,20}"
 
 
 @account_router.post("/register", response_model=router_base.BaseReponseModel)
-async def account_register(email: str = fastapi.Form(pattern=email_pattern),
+async def account_register(email: str = fastapi.Form(pattern=email_pattern, max_length=50),
                            account_name: str = fastapi.Form(
                                pattern=account_name_pattern),
                            password: str = fastapi.Form(pattern=r".{8,16}"),
@@ -50,11 +50,8 @@ async def account_register(email: str = fastapi.Form(pattern=email_pattern),
             hash_password=tool.get_hash_password(password)
         )
         await account_manager.register(new_account)
-    except account.AccountExistError as ex:
-        return {
-            "status": 4,
-            "message": str(ex)
-        }
+    except account.AccountExistError:
+        raise routers_exceptions.AccountExistedHttpError()
 
     return {
         "status": 1,
@@ -158,8 +155,22 @@ def checking_token(account: account.Account = fastapi.Depends(get_current_accoun
     }
 
 
+@account_router.delete("/me")
+async def delete_me_account(
+    account: account.Account = fastapi.Depends(get_current_account),
+    dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker
+        = fastapi.Depends(dependencies.get_async_dbsessionmaker)
+):
+    """ 删除账户
+    """
+    account_manager = account_manage.AccountManager(dbsessionmaker)
+    await account_manager.delete_account(account)
+    return router_base.BaseReponseModel(rst={"aid": account.aid})
+
+
 @account_router.get("/me")
-def get_me_account(account: account.Account = fastapi.Depends(get_current_account)):
+async def get_me_account(account: account.Account = fastapi.Depends(get_current_account)):
     return {
-        "account_name": account.account_name
+        "account_name": account.account_name,
+        "aid": account.aid
     }

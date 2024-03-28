@@ -31,21 +31,24 @@ class TestApiAccount():
         ("ABCdsf123", 422)
     ])
     @pytest.mark.asyncio
-    async def test_1_add_account_200(self, password, except_status,  async_client: AsyncClient):
+    async def test_1_account_200(self, password, except_status,  async_client: AsyncClient):
         """ 测试
         """
         # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
         client = async_client
-        timestamp_s = int(time.time())
-        email = f"test_{timestamp_s}_{random.randrange(1, 99999)}_{random.choice('abcdefghijk')}@test.test"
-        account_name = f"{random.choice(['asdf', 'sdfsde'])}{random.randrange(1, 99999)}"
+        timestamp_s = int(time.time()*100000)
+        email = f"test_{timestamp_s}_{random.randrange(1, 99999)}_{
+            random.choice('abcdefghijk')}@test.test"
+        account_name = f"{random.choice(['asdf', 'sdfsde'])}{
+            random.randrange(1, 99999)}"
         post_data = {
             "email": email,
             "account_name": account_name,
             "password": password
         }
         register_response = await client.post("/account/register", data=post_data)
-        assert register_response.status_code == except_status, f"{str(post_data)}"
+        assert register_response.status_code == except_status, f"{
+            str(post_data)}"
         if register_response.status_code == 200:
             pass
         else:
@@ -66,3 +69,11 @@ class TestApiAccount():
         assert me_response.status_code == 200
         account_info = me_response.json()
         assert account_info.get("account_name", None) == account_name
+        aid = account_info.get("aid", None)
+
+        delete_response = await client.delete("/account/me", headers={
+            "Authorization": "bearer " + data["access_token"]
+        })
+        assert me_response.status_code == 200
+        account_info = delete_response.json()
+        assert account_info["rst"].get("aid", None) == aid
