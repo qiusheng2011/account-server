@@ -31,7 +31,7 @@ class TestApiAccount():
         ("ABCdsf123", 422)
     ])
     @pytest.mark.asyncio
-    async def test_1_add_account_200(self, password, except_status,  async_client: AsyncClient):
+    async def test_1_account_200(self, password, except_status,  async_client: AsyncClient):
         """ 测试
         """
         # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
@@ -66,3 +66,11 @@ class TestApiAccount():
         assert me_response.status_code == 200
         account_info = me_response.json()
         assert account_info.get("account_name", None) == account_name
+        aid = account_info.get("aid", None)
+
+        delete_response = await client.delete("/account/me", headers={
+            "Authorization": "bearer " + data["access_token"]
+        })
+        assert me_response.status_code == 200
+        account_info = delete_response.json()
+        assert account_info["rst"].get("aid", None) == aid

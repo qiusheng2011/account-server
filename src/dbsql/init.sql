@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS `accounts_certificate_token` (
     PRIMARY KEY (`aid`),
     UNIQUE KEY `token` (`token`),
     UNIQUE KEY `refresh_token` (`refresh_token`),
-    CONSTRAINT `act_ibaid_1` FOREIGN KEY (`aid`) REFERENCES `accounts` (`aid`)
+    CONSTRAINT `act_ibaid_1` FOREIGN KEY (`aid`) REFERENCES `accounts` (`aid`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB COMMENT = "账户凭证表";

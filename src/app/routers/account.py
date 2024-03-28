@@ -13,12 +13,12 @@ from fastapi import (
 import pydantic
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
 
-from app import dependencies
-from app.tool import tool
-from app.modules import account
-from app.modules.account import account_manage
-from app.routers import router_base
-from app.routers import exception_errors as routers_exceptions
+from src.app import dependencies
+from src.app.tool import tool
+from src.app.modules import account
+from src.app.modules.account import account_manage
+from src.app.routers import router_base
+from src.app.routers import exception_errors as routers_exceptions
 oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="/v2/authorization")
 account_router = fastapi.APIRouter(prefix="/account", tags=["account"])
 logger = logging.getLogger(__name__)
@@ -158,8 +158,22 @@ def checking_token(account: account.Account = fastapi.Depends(get_current_accoun
     }
 
 
+@account_router.delete("/me")
+async def delete_me_account(
+    account: account.Account = fastapi.Depends(get_current_account),
+    dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker
+        = fastapi.Depends(dependencies.get_async_dbsessionmaker)
+):
+    """ 删除账户
+    """
+    account_manager = account_manage.AccountManager(dbsessionmaker)
+    await account_manager.delete_account(account)
+    return router_base.BaseReponseModel(rst={"aid": account.aid})
+
+
 @account_router.get("/me")
-def get_me_account(account: account.Account = fastapi.Depends(get_current_account)):
+async def get_me_account(account: account.Account = fastapi.Depends(get_current_account)):
     return {
-        "account_name": account.account_name
+        "account_name": account.account_name,
+        "aid": account.aid
     }

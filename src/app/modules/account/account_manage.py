@@ -6,10 +6,10 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
 from jose import jwt, exceptions as jose_exceptions
 
-from app.modules.account import model
-from app.modules.account import dbmodel
-from app.modules.account import exception_errors
-from app.tool import tool
+from src.app.modules.account import model
+from src.app.modules.account import dbmodel
+from src.app.modules.account import exception_errors
+from src.app.tool import tool
 
 logger = logging.getLogger(__name__)
 
@@ -83,10 +83,19 @@ class AccountManager():
             logger.critical(str(ex))
             raise ex
 
-    def delete_account(self, account: model.Account):
+    async def delete_account(self, account: model.Account):
         """物理删除一个账户的所有信息。
         """
-        pass
+        try:
+            async with self.async_dbsessionmaker.begin() as asyc_session:
+                is_exist, db_account = await self.db_account_operater.get_account_by_aid(asyc_session, account.aid)
+                if is_exist and db_account:
+                    await self.db_account_operater.delete_dbaccount(asyc_session, db_account)
+                else:
+                    raise ValueError(f"不存在的账户({account.aid})")
+        except Exception as ex:
+            logger.critical(str(ex))
+            raise ex
 
     async def make_account_access_token(self, account: model.Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm="", refresh_token_expire_extra_minutes: int = 1440):
 

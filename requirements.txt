@@ -12,3 +12,4 @@ msgpack
 # 测试
 pytest-asyncio
 pytest
+aiosqlite
