@@ -36,7 +36,7 @@ class TestApiAccount():
         """
         # async with AsyncClient(app=appserver, base_url="http://localhost") as client:
         client = async_client
-        timestamp_s = int(time.time())
+        timestamp_s = int(time.time()*100000)
         email = f"test_{timestamp_s}_{random.randrange(1, 99999)}_{
             random.choice('abcdefghijk')}@test.test"
         account_name = f"{random.choice(['asdf', 'sdfsde'])}{
