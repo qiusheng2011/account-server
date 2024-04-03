@@ -50,7 +50,7 @@ class TestApiAccount():
         assert register_response.status_code == except_status, f"{
             str(post_data)}"
         if register_response.status_code == 200:
-            pass
+            return
         else:
             return False, None, None
         signin_responce = await client.post("/account/v2/authorization", data={

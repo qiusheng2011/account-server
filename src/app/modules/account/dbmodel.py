@@ -26,6 +26,7 @@ class DBAccount(Base):
     hash_password: orm.Mapped[str] = orm.mapped_column(sa.String(64))
     register_time: orm.Mapped[datetime] = orm.mapped_column(
         sa.TIMESTAMP, default=func.now())
+    activation: orm.Mapped[int] = orm.mapped_column(sa.Integer, default=0)
 
     token = orm.Relationship("DBAccountCertificateToken",
                              uselist=False,
@@ -52,13 +53,13 @@ class DBAccountCertificateToken(Base):
 
 class DBAccountOperater():
 
-    async def check_accout_by_email_and_account_name(self, session: AsyncSession, email: str, account_name: str) -> bool:
+    async def check_accout_by_email_and_account_name(self, session: AsyncSession, email: str, account_name: str) -> tuple[bool, Optional[DBAccount]]:
         try:
             subq = sa.Select(DBAccount.aid).where(
                 sa.or_(DBAccount.email == email, DBAccount.account_name == account_name))
             result = await session.execute(subq)
             data = result.first()
-            return True if data else False
+            return (True, data) if data else (False, None)
         except Exception as ex:
             logger.critical(str(ex))
             raise ex
@@ -66,7 +67,7 @@ class DBAccountOperater():
     async def get_account_by_email(self, session: AsyncSession, email: str) -> Tuple[bool, Optional[DBAccount]]:
         try:
             selectsql = sa.Select(DBAccount).where(
-                DBAccount.email == email).limit(1)
+                sa.and_(DBAccount.email == email, DBAccount.activation == 1)).limit(1)
             results = await session.execute(selectsql)
             account = results.scalar_one_or_none()
             return (True, account) if account else (False, None)
@@ -76,7 +77,7 @@ class DBAccountOperater():
 
     async def get_account_by_aid(self, session: AsyncSession, aid: int | None) -> tuple[bool, DBAccount | None]:
         account = await session.get_one(DBAccount, aid)
-        return (True if account else False), account
+        return (True if (account and account.activation == 1) else False), account
 
     async def get_account_by_refresh_token(self, session: AsyncSession, refresh_token: str):
         try:

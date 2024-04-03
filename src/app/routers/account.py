@@ -12,13 +12,14 @@ from fastapi import (
 )
 import pydantic
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
+from redis import asyncio as asyncio_redis
 
-from app import dependencies
-from app.tool import tool
-from app.modules import account
-from app.modules.account import account_manage
-from app.routers import router_base
-from app.routers import exception_errors as routers_exceptions
+from src.app import dependencies
+from src.app.tool import tool
+from src.app.modules import account
+from src.app.modules.account import account_manage
+from src.app.routers import router_base
+from src.app.routers import exception_errors as routers_exceptions
 oauth2_schema = security.OAuth2PasswordBearer(tokenUrl="/v2/authorization")
 account_router = fastapi.APIRouter(prefix="/account", tags=["account"])
 logger = logging.getLogger(__name__)
@@ -30,20 +31,24 @@ account_name_pattern = r"[a-zA-Z0-9\u4E00-\u9FFF]{2,20}"
 
 
 @account_router.post("/register", response_model=router_base.BaseReponseModel)
-async def account_register(email: str = fastapi.Form(pattern=email_pattern, max_length=50),
-                           account_name: str = fastapi.Form(
-                               pattern=account_name_pattern),
-                           password: str = fastapi.Form(pattern=r".{8,16}"),
-                           dbsessionmaker: callable = fastapi.Depends(
-                               dependencies.get_async_dbsessionmaker)
-                           ):
+async def account_register(
+    email: str = fastapi.Form(pattern=email_pattern, max_length=50),
+    account_name: str = fastapi.Form(pattern=account_name_pattern),
+    password: str = fastapi.Form(pattern=r".{8,16}"),
+    dbsessionmaker: callable = fastapi.Depends(
+        dependencies.get_async_dbsessionmaker),
+    event_db_pool: asyncio_redis.ConnectionPool = fastapi.Depends(
+        dependencies.get_async_event_db_pool)
+):
     """ 账户注册
     """
     try:
         account_manager: account_manage.AccountManager = account.get_account_manager(
-            dbsessionmaker)
+            dbsessionmaker,
+            event_db_pool
+        )
         if not re.match(password_pattern, password):
-            raise routers_exceptions.PasswordIllegalHTTPError()
+            raise routers_exceptions.PasswordIllegal422HttpError()
         new_account = account.Account(
             email=email,
             account_name=account_name,
@@ -51,7 +56,9 @@ async def account_register(email: str = fastapi.Form(pattern=email_pattern, max_
         )
         await account_manager.register(new_account)
     except account.AccountExistError:
-        raise routers_exceptions.AccountExistedHttpError()
+        raise routers_exceptions.AccountExisted409HttpError()
+    except account.AccountUnactivateError:
+        raise routers_exceptions.AccountUnactivate403HttpError()
 
     return {
         "status": 1,
@@ -71,7 +78,7 @@ async def signin(request: fastapi.Request,
     account_manager = account.get_account_manager(dbsessionmaker)
     is_exist, account_u = await account_manager.authencicate_account(form_data.username, form_data.password)
     if not is_exist:
-        raise routers_exceptions.AuthenticateUserFailedError()
+        raise routers_exceptions.AuthenticateUserFailed401HttpError()
     elif account_u:
         config = request.app.extra.get("config", None)
         access_token, refresh_token, start_timestamp = await account_manager.make_account_access_token(
@@ -104,7 +111,7 @@ async def exchange_refresh_token(request: requests.Request, form_data: ERTReques
     account_manager = account_manage.AccountManager(dbsessionmaker)
     is_exist, account_u = await account_manager.authencicate_account_by_refresh_token(form_data.refresh_token)
     if not is_exist:
-        raise routers_exceptions.AuthenricateRefreshTokenError()
+        raise routers_exceptions.AuthenricateRefreshToken400HttpError()
     elif account_u:
         config = request.app.extra.get("config", None)
         access_token, refresh_token, start_timestamp = await account_manager.make_account_access_token(
@@ -135,14 +142,14 @@ async def get_activate_account(request: requests.Request, token: str = fastapi.D
     )
 
     if not account:
-        raise routers_exceptions.AuthenticateFailedError()
+        raise routers_exceptions.AuthenticateFailed401HttpError()
     else:
         return account
 
 
 async def get_current_account(account=fastapi.Depends(get_activate_account)):
     if not account:
-        raise routers_exceptions.AuthenticateFailedError()
+        raise routers_exceptions.AuthenticateFailed401HttpError()
     else:
         return account
 

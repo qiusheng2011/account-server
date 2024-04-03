@@ -3,10 +3,10 @@
 
 from fastapi import FastAPI
 
-from app.routers import account
-from app import logging_config
-from app import config
-from app import dependencies
+from src.app.routers import account
+from src.app import logging_config
+from src.app import config
+from src.app import dependencies
 
 
 app_description = """
@@ -37,6 +37,9 @@ logging_config.seting_logging_config(
 # 数据库初始化
 dependencies.init_async_db_connect_pool(
     str(app_config.mysql_dsn), debug=app_config.debug)
+
+# redis event_db_pool
+dependencies.init_async_event_db_connect_pool(str(app_config.redis_dsn))
 
 # 导入API路由
 appserver.include_router(account.account_router)

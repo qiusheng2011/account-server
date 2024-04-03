@@ -25,7 +25,6 @@ class TestClassDBmodel:
                 email="test@test.com",
                 account_name="test",
                 hash_password="0"*16,
-
             )
             async_session.add(account)
             await async_session.flush()

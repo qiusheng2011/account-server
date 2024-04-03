@@ -5,11 +5,13 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
 from jose import jwt, exceptions as jose_exceptions
+from redis import asyncio as asyncio_redis
 
-from app.modules.account import model
-from app.modules.account import dbmodel
-from app.modules.account import exception_errors
-from app.tool import tool
+from src.app.modules.account import model
+from src.app.modules.account import dbmodel
+from src.app.modules.account import exception_errors
+from src.app.tool import tool
+from src.app.modules.account import events
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +20,9 @@ class AccountManager():
     """账户管理器
     """
 
-    def __init__(self, async_dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker):
+    def __init__(self, async_dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker, async_event_db_pool: asyncio_redis.ConnectionPool):
         self.async_dbsessionmaker = async_dbsessionmaker
+        self.async_event_db_pool = async_event_db_pool
         self.logger = logging.getLogger(__name__)
         self.db_account_operater = dbmodel.DBAccountOperater()
 
@@ -30,13 +33,23 @@ class AccountManager():
             dbaccount = dbmodel.DBAccount(
                 **account.model_dump(exclude_unset=True))
             async with self.async_dbsessionmaker.begin() as async_session:
-                check_result = await self.db_account_operater.check_accout_by_email_and_account_name(
+                check_result, gdbaccount = await self.db_account_operater.check_accout_by_email_and_account_name(
                     async_session, dbaccount.email, dbaccount.account_name)
-                if check_result:
-                    raise exception_errors.AccountExistError()
+                if check_result and gdbaccount:
+                    if gdbaccount.activation == 0:
+                        raise exception_errors.AccountUnactivateError
+                    else:
+                        raise exception_errors.AccountExistError()
                 async_session.add(dbaccount)
                 await async_session.flush()
                 account.aid = dbaccount.aid
+
+                register_event = events.RegisterSuccessEvent(data={
+                    "account_email": account.email,
+                    "account_aid": account.aid
+                })
+                async with asyncio_redis.Redis.from_pool(self.async_event_db_pool) as async_redis:
+                    await async_redis.publish("account_server", register_event.model_dump_json())
             return True
         except Exception as ex:
             logger.critical(str(ex))
@@ -105,8 +118,10 @@ class AccountManager():
         info = f"asdkfjkldsf#{account.account_name}#werdsfsdf#{str(now_dt)}"
         sub = hashlib.sha256(info.encode("utf8")).hexdigest()
 
-        refresh_dt = now_dt + timedelta(minutes=refresh_token_expire_extra_minutes)
-        refresh_info = f"asdkfjkldsf#{account.email}#werdsfsdf#{str(refresh_dt)}"
+        refresh_dt = now_dt + \
+            timedelta(minutes=refresh_token_expire_extra_minutes)
+        refresh_info = f"asdkfjkldsf#{
+            account.email}#werdsfsdf#{str(refresh_dt)}"
         refresh_sub = hashlib.sha256(refresh_info.encode("utf8")).hexdigest()
         data = {
             "sub": sub,
@@ -129,7 +144,8 @@ class AccountManager():
 
     async def get_account_by_token(self, token, token_secret_key: str = "", token_algorithm="") -> model.Account | None:
         try:
-            payload = jwt.decode(token, str(token_secret_key), algorithms=token_algorithm)
+            payload = jwt.decode(token, str(
+                token_secret_key), algorithms=token_algorithm)
 
             sub_token = payload.get("sub", "")
             expire_date = payload.get("exp", 0)
