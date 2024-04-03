@@ -64,4 +64,4 @@ class EmailSendWorker():
 
 
 if __name__ == "__main__":
-    SmtpServer().send_email("realisvalue@gmail.com", "test", "test")
+    SmtpServer().send_email("", "test", "test")
