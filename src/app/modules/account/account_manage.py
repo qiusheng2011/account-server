@@ -49,7 +49,7 @@ class AccountManager():
                     "account_aid": account.aid
                 })
                 async with asyncio_redis.Redis.from_pool(self.async_event_db_pool) as async_redis:
-                    await async_redis.publish("account_server", register_event.model_dump_json())
+                    await async_redis.lpush("account_server", register_event.model_dump_json())
             return True
         except Exception as ex:
             logger.critical(str(ex))
