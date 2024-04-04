@@ -20,6 +20,13 @@ class AccountUnactivate403HttpError(HTTPException):
         super().__init__(status_code=403, detail="账户未激活")
 
 
+class AccountHasActivated404HttpError(HTTPException):
+    """账户已激活"""
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(status_code=404, detail="")
+
+
 class PasswordIllegal422HttpError(HTTPException):
     """ 密码问题
     """

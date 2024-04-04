@@ -1,4 +1,6 @@
+import datetime
 import pydantic
+
 
 
 class AccountToken(pydantic.BaseModel):
@@ -15,7 +17,6 @@ class Account(pydantic.BaseModel):
 
         attribute:
             aid:
-            title:
             email:
             account_name:
             hash_passowrd:
@@ -25,6 +26,7 @@ class Account(pydantic.BaseModel):
     email: str = pydantic.Field(title="邮箱")
     account_name: str = pydantic.Field(title="账户名")
     hash_password: str = pydantic.Field(title="hash密码")
+    activation: int = 0
     token: AccountToken | None = None
 
     class Config:
@@ -38,3 +40,11 @@ class Account(pydantic.BaseModel):
     def make_accecss_token(self):
         """ 生成账户权限
         """
+
+
+class AccountActivation(pydantic.BaseModel):
+
+    aid: int
+    activate_token: str
+    expire_time: datetime.datetime
+    used: bool = False

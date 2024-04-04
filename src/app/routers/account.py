@@ -71,6 +71,30 @@ async def account_register(
     }
 
 
+@account_router.get("/activate")
+async def account_activate(
+    activate_token: str = fastapi.Query(),
+    dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker = fastapi.Depends(
+            dependencies.get_async_dbsessionmaker),
+    event_db_pool: asyncio_redis.ConnectionPool = fastapi.Depends(
+            dependencies.get_async_event_db_pool)
+):
+    try:
+        account_manager = account.get_account_manager(
+            dbsessionmaker,
+            event_db_pool
+        )
+        is_ok = await account_manager.activate_account(activate_token=activate_token)
+        if is_ok:
+            return
+    except account.AccountActivationNotFoundError:
+        raise routers_exceptions.HTTPException(404)
+    except account.AccountActivationHasUsedError:
+        raise routers_exceptions.AccountHasActivated404HttpError()
+    except Exception as ex:
+        raise ex
+
+
 @account_router.post("/v2/authorization")
 async def signin(request: fastapi.Request,
                  form_data: security.OAuth2PasswordRequestForm = fastapi.Depends(),
@@ -166,7 +190,8 @@ def checking_token(account: account.Account = fastapi.Depends(get_current_accoun
 async def delete_me_account(
     account: account.Account = fastapi.Depends(get_current_account),
     dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker
-        = fastapi.Depends(dependencies.get_async_dbsessionmaker)
+        = fastapi.Depends(dependencies.get_async_dbsessionmaker),
+
 ):
     """ 删除账户
     """

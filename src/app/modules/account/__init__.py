@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 from .model import (
     Account
 )
@@ -10,5 +10,5 @@ from .account_manage import AccountManager
 from .exception_errors import *
 
 
-def get_account_manager(dbsessionmaker: async_sessionmaker, event_db_pool: asyncio_redis.ConnectionPool) -> AccountManager:
+def get_account_manager(dbsessionmaker: async_sessionmaker, event_db_pool: Optional[asyncio_redis.ConnectionPool] = None) -> AccountManager:
     return AccountManager(dbsessionmaker, event_db_pool)

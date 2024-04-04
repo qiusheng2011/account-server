@@ -1,7 +1,8 @@
 import hashlib
 import logging
-
-from datetime import datetime, timedelta, timezone
+import secrets
+import datetime
+from typing import Optional
 
 from sqlalchemy.ext import asyncio as sqlalchemy_asyncio
 from jose import jwt, exceptions as jose_exceptions
@@ -20,13 +21,13 @@ class AccountManager():
     """账户管理器
     """
 
-    def __init__(self, async_dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker, async_event_db_pool: asyncio_redis.ConnectionPool):
+    def __init__(self, async_dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker, async_event_db_pool: Optional[asyncio_redis.ConnectionPool] = None):
         self.async_dbsessionmaker = async_dbsessionmaker
         self.async_event_db_pool = async_event_db_pool
         self.logger = logging.getLogger(__name__)
         self.db_account_operater = dbmodel.DBAccountOperater()
 
-    async def register(self, account: model.Account):
+    async def register(self, account: model.Account, activate_token=secrets.token_urlsafe()):
         """注册一个账户
         """
         try:
@@ -44,15 +45,43 @@ class AccountManager():
                 await async_session.flush()
                 account.aid = dbaccount.aid
 
+                account_activation = model.AccountActivation(
+                    aid=dbaccount.aid,
+                    activate_token=activate_token,
+                    expire_time=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=24),
+                    used=False
+                )
+                db_account_activation = dbmodel.DBAccountActivation(**account_activation.model_dump(exclude_unset=True))
+
+                save_aa_ok = await self.db_account_operater.save_account_activation(async_session, db_account_activation)
+
                 register_event = events.RegisterSuccessEvent(data={
                     "account_email": account.email,
-                    "account_aid": account.aid
+                    "account_aid": account.aid,
+                    "activate_token": account_activation.activate_token
                 })
                 async with asyncio_redis.Redis.from_pool(self.async_event_db_pool) as async_redis:
                     await async_redis.lpush("account_server", register_event.model_dump_json())
             return True
         except Exception as ex:
-            logger.critical(str(ex))
+            logger.error(str(ex))
+            raise ex
+
+    async def activate_account(self, activate_token):
+        # 获取激活实体
+        try:
+            async with self.async_dbsessionmaker.begin() as async_session:
+                db_account_activation = await self.db_account_operater.get_account_activation(async_session, activate_token)
+                if not db_account_activation:
+                    raise exception_errors.AccountActivationNotFoundError
+                if not db_account_activation.used:
+                    is_ok = await self.db_account_operater.accont_activate(async_session, db_account_activation)
+                    return is_ok
+                else:
+                    raise exception_errors.AccountActivationHasUsedError
+
+        except Exception as ex:
+            logger.error(str(ex))
             raise ex
 
     def verify_account(self, account: model.Account, password: str):
@@ -71,7 +100,7 @@ class AccountManager():
                 is_exist, account = await self.db_account_operater.get_account_by_email(session=async_session, email=email)
                 return (True, model.Account.model_validate(account)) if is_exist else (False, None)
         except Exception as ex:
-            logger.critical(str(ex))
+            logger.error(str(ex))
             raise ex
 
     async def authencicate_account(self, email: str, password: str):
@@ -93,7 +122,7 @@ class AccountManager():
                     async_session, refresh_token)
                 return is_exist, model.Account.model_validate(account) if is_exist else None
         except Exception as ex:
-            logger.critical(str(ex))
+            logger.error(str(ex))
             raise ex
 
     async def delete_account(self, account: model.Account):
@@ -104,22 +133,23 @@ class AccountManager():
                 is_exist, db_account = await self.db_account_operater.get_account_by_aid(asyc_session, account.aid)
                 if is_exist and db_account:
                     await self.db_account_operater.delete_dbaccount(asyc_session, db_account)
+                    return True
                 else:
                     raise ValueError(f"不存在的账户({account.aid})")
         except Exception as ex:
-            logger.critical(str(ex))
+            logger.error(str(ex))
             raise ex
 
     async def make_account_access_token(self, account: model.Account, token_expire_minutes: int = 10, token_secret_key: str = "", token_algorithm="", refresh_token_expire_extra_minutes: int = 1440):
 
-        now = datetime.now(timezone.utc)
-        now_dt = now + timedelta(minutes=token_expire_minutes)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        now_dt = now + datetime.timedelta(minutes=token_expire_minutes)
         # TODO 加盐优化
         info = f"asdkfjkldsf#{account.account_name}#werdsfsdf#{str(now_dt)}"
         sub = hashlib.sha256(info.encode("utf8")).hexdigest()
 
         refresh_dt = now_dt + \
-            timedelta(minutes=refresh_token_expire_extra_minutes)
+            datetime.timedelta(minutes=refresh_token_expire_extra_minutes)
         refresh_info = f"asdkfjkldsf#{
             account.email}#werdsfsdf#{str(refresh_dt)}"
         refresh_sub = hashlib.sha256(refresh_info.encode("utf8")).hexdigest()
@@ -137,7 +167,7 @@ class AccountManager():
                     )
                 )
         except Exception as ex:
-            logger.critical(str(ex))
+            logger.error(str(ex))
             raise ex
 
         return encode_jwt, refresh_sub, int(now.timestamp())
@@ -149,7 +179,7 @@ class AccountManager():
 
             sub_token = payload.get("sub", "")
             expire_date = payload.get("exp", 0)
-            utc_now = int(datetime.now(timezone.utc).timestamp())
+            utc_now = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
             if utc_now >= expire_date:
                 return None
             async with self.async_dbsessionmaker.begin() as async_session:
@@ -159,5 +189,5 @@ class AccountManager():
             return None
 
         except Exception as ex:
-            logger.critical(str(ex))
+            logger.error(str(ex))
             raise ex
