@@ -11,6 +11,7 @@ from email.mime import multipart as email_multipart
 from redis import asyncio as asyncio_redis
 import pydantic
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 REDIS_DSN_KEY = "account_server_worker_redis_dsn"
@@ -65,7 +66,7 @@ class SmtpServer(pydantic.BaseModel):
                 )
 
                 server.send_message(message)
-                print(f"to-email:{to_email}>发送成功")
+                logging.info(f"to-email:{to_email}>发送成功")
                 return True
         except smtplib.SMTPAuthenticationError as ex:
             logging.critical(str(ex))
@@ -116,14 +117,16 @@ class EmailSendWorker():
             async with asyncio_redis.Redis.from_pool(self.event_db_pool) as async_redis:
                 while True:
                     channel, event_str = await async_redis.brpop([self.channel_name])
-                    event = Event.model_validate_json(event_str) if event_str else None
-                    success = self.send_account_activate_email(event)
+                    logger.info(f"{channel}\t{event_str}")
+                    event = Event.model_validate_json(
+                        event_str) if event_str else None
+                    success = await asyncio.to_thread(
+                        self.send_account_activate_email, event)
         except Exception as ex:
             logger.error(str(ex))
 
 
-if __name__ == "__main__":
-    # SmtpServer().send_email("", "test", "test")
+async def main(task_nums=3):
     smtp_server = SmtpServer(
         user=SMTP_SERVER_USER,
         password=SMTP_SERVER_PASSWORD
@@ -134,4 +137,13 @@ if __name__ == "__main__":
         smtp_server=smtp_server,
         activate_web_url=ACTIVATE_WEB_URL
     )
-    asyncio.run(esw.run())
+    runners = []
+    async with asyncio.TaskGroup() as tg:
+        for i in range(task_nums):
+            runners.append(tg.create_task(esw.run(), name=f"runner_{i}"))
+
+
+if __name__ == "__main__":
+    # SmtpServer().send_email("", "test", "test")
+
+    asyncio.run(main())
