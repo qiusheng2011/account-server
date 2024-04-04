@@ -29,5 +29,6 @@ CREATE TABLE IF NOT EXISTS `account_activation` (
     `activate_token` CHAR(43) NOT NULL COMMENT "激活凭证",
     `used` int(1) DEFAULT 0 COMMENT "使用标识",
     `expire_time` TIMESTAMP NOT NULL COMMENT "过期时间",
+    UNIQUE KEY `activate_token` (`activate_token`),
     CONSTRAINT `aa_ibaid_1` FOREIGN KEY (`aid`) REFERENCES `accounts` (`aid`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE = InnoDB  COMMENT "账户激活表";

@@ -27,10 +27,12 @@ class AccountManager():
         self.logger = logging.getLogger(__name__)
         self.db_account_operater = dbmodel.DBAccountOperater()
 
-    async def register(self, account: model.Account, activate_token=secrets.token_urlsafe()):
+    async def register(self, account: model.Account, activate_token: str = ""):
         """注册一个账户
         """
         try:
+            if not activate_token:
+                activate_token = secrets.token_urlsafe(48)
             dbaccount = dbmodel.DBAccount(
                 **account.model_dump(exclude_unset=True))
             async with self.async_dbsessionmaker.begin() as async_session:
