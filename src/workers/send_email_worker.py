@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 import asyncio
 import datetime
 import logging
@@ -7,6 +8,7 @@ from typing import Optional
 import smtplib
 from email.mime import text as email_text
 from email.mime import multipart as email_multipart
+import functools
 
 from redis import asyncio as asyncio_redis
 import pydantic
@@ -25,13 +27,26 @@ SMTP_SERVER_PASSWORD_KEY = "account_server_worker_smtp_server_password"
 SMTP_SERVER_PASSWORD = os.getenv(SMTP_SERVER_PASSWORD_KEY) or os.getenv(
     SMTP_SERVER_PASSWORD_KEY.upper())
 
-ACTIVATE_WEB_URL_KEY = "account_server_activate_weburl"
+ACTIVATE_WEB_URL_KEY = "account_server_worker_account_activate_weburl_f"
 ACTIVATE_WEB_URL = os.getenv(ACTIVATE_WEB_URL_KEY) or os.getenv(
     ACTIVATE_WEB_URL_KEY.upper())
 
 if not SMTP_SERVER_USER or not SMTP_SERVER_PASSWORD or not ACTIVATE_WEB_URL or not REDIS_DSN:
     raise ValueError(f"无法获取到环境变量 {SMTP_SERVER_USER_KEY} or {
                      SMTP_SERVER_PASSWORD} ")
+
+
+def caculate_time_cost(f):
+
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        s_t = time.time()*1000
+        rst = f(*args, **kwargs)
+        e_t = time.time()*1000
+        cost = e_t - s_t
+        print(f"{f.__name__}\tcost:{cost}ms")
+        return rst
+    return wrapper
 
 
 class Event(pydantic.BaseModel):
@@ -92,6 +107,7 @@ class EmailSendWorker():
             """)
         return body
 
+    @caculate_time_cost
     def send_account_activate_email(self, register_success_event):
         account_email = register_success_event.data.get("account_email", None)
         account_aid = register_success_event.data.get("account_aid", None)
@@ -111,7 +127,7 @@ class EmailSendWorker():
         )
         return send_ok
 
-    async def run(self):
+    async def run(self, send_mail_timeout=10):
         logger.info("worker start !")
         try:
             async with asyncio_redis.Redis.from_pool(self.event_db_pool) as async_redis:
@@ -120,13 +136,18 @@ class EmailSendWorker():
                     logger.info(f"{channel}\t{event_str}")
                     event = Event.model_validate_json(
                         event_str) if event_str else None
-                    success = await asyncio.to_thread(
-                        self.send_account_activate_email, event)
+                    try:
+                        async with asyncio.timeout(send_mail_timeout):
+                            success = await asyncio.to_thread(self.send_account_activate_email, event)
+                    except TimeoutError:
+                        logger.warning(
+                            f"{channel}\t{event_str}\t\tsend_mail_timeout")
+
         except Exception as ex:
             logger.error(str(ex))
 
 
-async def main(task_nums=3):
+async def main(task_nums=10):
     smtp_server = SmtpServer(
         user=SMTP_SERVER_USER,
         password=SMTP_SERVER_PASSWORD
@@ -144,6 +165,4 @@ async def main(task_nums=3):
 
 
 if __name__ == "__main__":
-    # SmtpServer().send_email("", "test", "test")
-
     asyncio.run(main())
