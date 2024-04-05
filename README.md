@@ -78,7 +78,7 @@ python -m locust  -H http://127.0.0.1:8700 -f ./tests/apiperformance_test/locust
 | smtp_servser_url | str | None | SMTP服务地址 | |
 | smtp_servser_user | str | None | SMTP服务用户名 | |
 | smtp_server_password | str | None| SMTP服务用户密码| |
-| account_activate_weburl_f | str ｜ None| 账户激活的web地址格式化字符串| |
+| account_activate_weburl_f | str | None | 账户激活的web地址格式化字符串| |
 
 ### 部署方式
 
