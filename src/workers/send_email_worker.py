@@ -1,5 +1,6 @@
-import sys
-import os
+"""(异步并发)邮件发送监听
+"""
+from urllib import parse
 import time
 import asyncio
 import datetime
@@ -12,28 +13,12 @@ import functools
 
 from redis import asyncio as asyncio_redis
 import pydantic
+import pydantic_settings
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-REDIS_DSN_KEY = "account_server_worker_redis_dsn"
-REDIS_DSN = os.getenv(REDIS_DSN_KEY) or os.getenv(REDIS_DSN_KEY.upper())
-
-SMTP_SERVER_USER_KEY = "account_server_worker_smtp_server_user"
-SMTP_SERVER_USER = os.getenv(SMTP_SERVER_USER_KEY) or os.getenv(
-    SMTP_SERVER_USER_KEY.upper())
-
-SMTP_SERVER_PASSWORD_KEY = "account_server_worker_smtp_server_password"
-SMTP_SERVER_PASSWORD = os.getenv(SMTP_SERVER_PASSWORD_KEY) or os.getenv(
-    SMTP_SERVER_PASSWORD_KEY.upper())
-
-ACTIVATE_WEB_URL_KEY = "account_server_worker_account_activate_weburl_f"
-ACTIVATE_WEB_URL = os.getenv(ACTIVATE_WEB_URL_KEY) or os.getenv(
-    ACTIVATE_WEB_URL_KEY.upper())
-
-if not SMTP_SERVER_USER or not SMTP_SERVER_PASSWORD or not ACTIVATE_WEB_URL or not REDIS_DSN:
-    raise ValueError(f"无法获取到环境变量 {SMTP_SERVER_USER_KEY} or {
-                     SMTP_SERVER_PASSWORD} ")
+WORKER_CONFIG_PREFIX = "account_worker"
 
 
 def caculate_time_cost(f):
@@ -49,21 +34,43 @@ def caculate_time_cost(f):
     return wrapper
 
 
-class Event(pydantic.BaseModel):
+class WorkerConfig(pydantic_settings.BaseSettings):
+    """ 启动配置
+    """
 
+    model_config = pydantic_settings.SettingsConfigDict(
+        env_prefix=f"{WORKER_CONFIG_PREFIX}_",
+    )
+
+    task_nums: int = pydantic.Field(default=5, description="监听任务的线程数")
+
+    redis_dsn: pydantic.RedisDsn = pydantic.Field(description="redis地址")
+
+    # smtp 服务设置
+    smtp_server_url: pydantic.AnyUrl = pydantic.Field(description="SMTP服务地址")
+    smtp_from_mail: str = pydantic.Field(description="stmp发件人地址")
+
+    account_activate_weburl_f: str = pydantic.Field(
+        default="https://xxxx?activate_token={activate_token}",
+        description="账户激活请求地址待格式化字符串（必须包含{activate_token}）"
+    )
+
+
+class Event(pydantic.BaseModel):
+    """事件"""
     event_name: str
     event_time: datetime.datetime
     data: Optional[dict] = pydantic.Field(default_factory=dict)
 
 
 class SmtpServer(pydantic.BaseModel):
+    """邮件发送器"""
 
-    url: str = "smtp.mail.me.com"
+    url: str
     port: int = 587
-
     user: str
     password: str
-    from_mail: str = "schoupdev@icloud.com"
+    from_mail: str
 
     def send_email(self, to_email, subject, body):
         message = email_multipart.MIMEMultipart()
@@ -84,12 +91,13 @@ class SmtpServer(pydantic.BaseModel):
                 logging.info(f"to-email:{to_email}>发送成功")
                 return True
         except smtplib.SMTPAuthenticationError as ex:
-            logging.critical(str(ex))
+            logging.error(str(ex))
             return False
 
 
 class EmailSendWorker():
-
+    """ 邮件发送监听器
+    """
     channel_name = "account_server"
 
     def __init__(self, event_db_pool, smtp_server: SmtpServer, activate_web_url: str):
@@ -147,20 +155,29 @@ class EmailSendWorker():
             logger.error(str(ex))
 
 
-async def main(task_nums=10):
+async def main():
+    """ 运行函数
+    """
+
+    config = WorkerConfig()
+
     smtp_server = SmtpServer(
-        user=SMTP_SERVER_USER,
-        password=SMTP_SERVER_PASSWORD
+        url=config.smtp_server_url.host or "",
+        port=config.smtp_server_url.port or 0,
+        user=parse.unquote(config.smtp_server_url.username or ""),
+        password=parse.unquote(config.smtp_server_url.password or ""),
+        from_mail=config.smtp_from_mail
     )
-    event_db_pool = asyncio_redis.ConnectionPool.from_url(REDIS_DSN)
+    event_db_pool = asyncio_redis.ConnectionPool.from_url(
+        str(config.redis_dsn))
     esw = EmailSendWorker(
         event_db_pool=event_db_pool,
         smtp_server=smtp_server,
-        activate_web_url=ACTIVATE_WEB_URL
+        activate_web_url=config.account_activate_weburl_f
     )
     runners = []
     async with asyncio.TaskGroup() as tg:
-        for i in range(task_nums):
+        for i in range(config.task_nums or 1):
             runners.append(tg.create_task(esw.run(), name=f"runner_{i}"))
 
 
