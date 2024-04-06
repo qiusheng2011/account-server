@@ -39,6 +39,9 @@ class AppConfig(pydantic_settings.BaseSettings):
         "connect_timeout": 3
     }
 
+    # redis
+    redis_dsn: pydantic.RedisDsn = pydantic.Field(default=None)
+
     model_config = pydantic_settings.SettingsConfigDict(
         env_prefix=f"{APP_CONFIG_PREFIX}_",
         case_sensitive=False

@@ -1,3 +1,6 @@
+import secrets
+import datetime
+
 import pytest
 from sqlalchemy.ext import asyncio as sa_asyncio
 
@@ -25,9 +28,16 @@ class TestClassDBmodel:
                 email="test@test.com",
                 account_name="test",
                 hash_password="0"*16,
-
             )
+
             async_session.add(account)
             await async_session.flush()
+            account_activation = dbmodel.DBAccountActivation(
+                aid=account.aid,
+                activate_token=secrets.token_urlsafe(),
+                expire_time=datetime.datetime.now() + datetime.timedelta(hours=24)
+            )
+            result = await db_account_opterator.save_account_activation(async_session, account_activation)
+            assert result
             aid = await db_account_opterator.delete_dbaccount(async_session, account)
             assert account.aid == aid

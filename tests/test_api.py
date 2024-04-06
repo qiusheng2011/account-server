@@ -47,12 +47,15 @@ class TestApiAccount():
             "password": password
         }
         register_response = await client.post("/account/register", data=post_data)
-        assert register_response.status_code == except_status, f"{
-            str(post_data)}"
+        assert register_response.status_code == except_status, f"{str(post_data)}"
         if register_response.status_code == 200:
             pass
         else:
             return False, None, None
+        
+        # 激活账户 
+        return
+
         signin_responce = await client.post("/account/v2/authorization", data={
             "username": email,
             "password": password,

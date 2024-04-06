@@ -5,16 +5,17 @@
 示例
 `python3  */src/main.py`
 """
+
 import os
 import sys
 
 import uvicorn
-import app
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/../")
 
 
 if __name__ == "__main__":
+    import app
     config = app.appserver.extra.get("config", None)
     uvicorn.run(
         "app:appserver",

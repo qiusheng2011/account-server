@@ -6,14 +6,28 @@ from fastapi import HTTPException, status
 logger = logging.getLogger()
 
 
-class AccountExistedHttpError(HTTPException):
+class AccountExisted409HttpError(HTTPException):
     """账户已存在"""
 
     def __init__(self, *args: object) -> None:
         super().__init__(status_code=409, detail="账户已存在无法注册,请修改邮箱或者用户名")
 
 
-class PasswordIllegalHTTPError(HTTPException):
+class AccountUnactivate403HttpError(HTTPException):
+    """账户未激活"""
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(status_code=403, detail="账户未激活")
+
+
+class AccountHasActivated404HttpError(HTTPException):
+    """账户已激活"""
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(status_code=404, detail="")
+
+
+class PasswordIllegal422HttpError(HTTPException):
     """ 密码问题
     """
 
@@ -21,7 +35,7 @@ class PasswordIllegalHTTPError(HTTPException):
         super().__init__(status_code=422, detail="密码不合规", *args)
 
 
-class AuthenticateUserFailedError(HTTPException):
+class AuthenticateUserFailed401HttpError(HTTPException):
     """ 验证失败
     """
 
@@ -31,7 +45,7 @@ class AuthenticateUserFailedError(HTTPException):
                          headers={"WWW-Authenticate": "Bearer"})
 
 
-class AuthenticateFailedError(HTTPException):
+class AuthenticateFailed401HttpError(HTTPException):
     """ 验证失败
     """
 
@@ -41,7 +55,7 @@ class AuthenticateFailedError(HTTPException):
                          headers={"WWW-Authenticate": "Bearer"})
 
 
-class AuthenricateRefreshTokenError(HTTPException):
+class AuthenricateRefreshToken400HttpError(HTTPException):
     """ refresh token 无效错误
     """
 
