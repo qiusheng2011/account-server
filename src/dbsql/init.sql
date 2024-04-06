@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `accounts` (
     `account_name` VARCHAR (50) NOT NULL UNIQUE KEY COMMENT "账户名称",
     `hash_password` CHAR (64) NOT NULL COMMENT "账户密码hash值",
     `register_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT "注册时间",
-    `activation` int(1) DEFAULT 0 COMMENT "激活状态",
+    `activation` int(1) DEFAULT 0 COMMENT "激活状态"
 ) ENGINE = InnoDB COMMENT "账户表";
 
 -- 账户凭证表
