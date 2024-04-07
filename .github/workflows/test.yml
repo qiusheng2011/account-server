@@ -25,7 +25,7 @@ jobs:
       ACCOUNT_SERVER_MYSQL_DSN: "mysql+aiomysql://root:sdf4kpxcvawjdjsfklj4rklfe@127.0.0.1:3306/tts"
       ACCOUNT_SERVER_LOG_DIR: "./logs"
       ACCOUNT_SERVER_PORT: 8700
-      ACCOUNT_SERVER_REDIS_DSN: "redis://127.0.0.1:6379"
+      ACCOUNT_SERVER_REDIS_DSN: "redis://redis:6379"
     services:
       mariadb:
         image: mariadb:latest
