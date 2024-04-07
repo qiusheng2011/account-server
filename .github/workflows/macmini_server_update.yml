@@ -25,7 +25,6 @@ jobs:
           git pull
 
       - name: 更新环境
-        shell: zsh
         run: |
           eval "$(pyenv init -)"
           eval "$(pyenv virtualenv-init -)"
@@ -35,7 +34,6 @@ jobs:
           python -m pip install -Ur ./requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
 
       - name: 测试
-        shell: zsh
         env:
           ACCOUNT_SERVER_MYSQL_DSN: ${{ secrets.MAC_RUNNER_MYSQL_DSN }}
         run: |
@@ -47,7 +45,6 @@ jobs:
           python -m pytest ./tests
 
       - name: 重启服务
-        shell: zsh
         run: |
           cd ~/Desktop/myselfproject/supervisor_services/
           ./supervisorctl.sh status  "account:*" 
