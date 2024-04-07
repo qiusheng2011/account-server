@@ -26,12 +26,11 @@ jobs:
 
       - name: 更新环境
         run: |
-          export PYENV_ROOT="$HOME/.anyenv/envs/pyenv"
-          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-          eval "$(pyenv init -)"
-          eval "$(pyenv virtualenv-init -)"
-
-          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
+          export PYENV_ROOT="$HOME/.anyenv/envs/pyenv" || true
+          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" || true
+          eval "$(pyenv init -)" || true
+          eval "$(pyenv virtualenv-init -)" || true
+          cd ~/Desktop/myselfproject/supervisor_services/services/account-server/ || true
           pyenv virtualenv 3.12.2 account-server || true
           pyenv activate account-server || true
           python -m pip install -Ur ./requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
