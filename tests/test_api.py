@@ -39,8 +39,7 @@ class TestApiAccount():
         timestamp_s = int(time.time()*100000)
         email = f"test_{timestamp_s}_{random.randrange(1, 99999)}_{
             random.choice('abcdefghijk')}@test.test"
-        account_name = f"{random.choice(['asdf', 'sdfsde'])}{
-            random.randrange(1, 99999)}"
+        account_name = f"{random.choice(['asdf', 'sdfsde'])}_{timestamp_s}"
         post_data = {
             "email": email,
             "account_name": account_name,
