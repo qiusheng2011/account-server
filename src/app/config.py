@@ -12,6 +12,12 @@ APP_CONFIG_PREFIX = "account_server"
 class AppConfig(pydantic_settings.BaseSettings):
     """ 配置
     """
+    model_config = pydantic_settings.SettingsConfigDict(
+        env_prefix=f"{APP_CONFIG_PREFIX}_",
+        case_sensitive=False,
+        env_file=(".env", ".env.prod", ".env.dev"),
+        env_file_encoding='utf-8'
+    )
 
     # server
     server_name: str = "account_server"
@@ -41,11 +47,6 @@ class AppConfig(pydantic_settings.BaseSettings):
 
     # redis
     redis_dsn: pydantic.RedisDsn = pydantic.Field(default=None)
-
-    model_config = pydantic_settings.SettingsConfigDict(
-        env_prefix=f"{APP_CONFIG_PREFIX}_",
-        case_sensitive=False
-    )
 
     @pydantic.computed_field
     @functools.cached_property
