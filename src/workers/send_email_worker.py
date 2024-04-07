@@ -40,6 +40,9 @@ class WorkerConfig(pydantic_settings.BaseSettings):
 
     model_config = pydantic_settings.SettingsConfigDict(
         env_prefix=f"{WORKER_CONFIG_PREFIX}_",
+        env_file=(".env", ".env.prod", ".env.dev"),
+        env_file_encoding="utf-8",
+        extra="ignore"
     )
 
     task_nums: int = pydantic.Field(default=5, description="监听任务的线程数")
