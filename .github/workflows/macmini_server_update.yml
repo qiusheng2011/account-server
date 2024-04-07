@@ -25,6 +25,7 @@ jobs:
           git pull
 
       - name: 更新环境
+        shell: sh
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
@@ -33,6 +34,7 @@ jobs:
           python -m pip install -Ur ./requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
 
       - name: 测试
+        shell: sh
         env:
           ACCOUNT_SERVER_MYSQL_DSN: ${{ secrets.MAC_RUNNER_MYSQL_DSN }}
         run: |
@@ -43,6 +45,7 @@ jobs:
           python -m pytest ./tests
 
       - name: 重启服务
+        shell: sh
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/
