@@ -38,6 +38,7 @@ jobs:
         run: |
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
           pyenv activate account-server || true
+          source .env
           python -m pytest ./tests
 
       - name: 重启服务
