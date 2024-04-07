@@ -46,6 +46,6 @@ jobs:
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/
-          ./supervisorctl.sh status  "account_server:*" 
-          ./supervisorctl.sh  restart "account_server:*"
-          ./supervisorctl.sh status  "account_server:*"
+          ./supervisorctl.sh status  "account:*" 
+          ./supervisorctl.sh  restart "account:*"
+          ./supervisorctl.sh status  "account:*"
