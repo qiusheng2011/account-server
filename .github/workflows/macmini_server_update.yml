@@ -36,8 +36,9 @@ jobs:
         env:
           ACCOUNT_SERVER_MYSQL_DSN: ${{ secrets.MAC_RUNNER_MYSQL_DSN }}
         run: |
+          /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/services/account-server/
-          pyenv activate account-server || true
+          pyenv activate account-server
           source .env
           python -m pytest ./tests
 
@@ -45,6 +46,6 @@ jobs:
         run: |
           /bin/zsh
           cd ~/Desktop/myselfproject/supervisor_services/
-          ./supervisorctl.sh status  "account_server:*" 
-          ./supervisorctl.sh  restart "account_server:*"
-          ./supervisorctl.sh status  "account_server:*"
+          ./supervisorctl.sh status  "account:*" 
+          ./supervisorctl.sh  restart "account:*"
+          ./supervisorctl.sh status  "account:*"
