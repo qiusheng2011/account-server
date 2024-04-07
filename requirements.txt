@@ -14,3 +14,4 @@ redis[hiredis]
 pytest-asyncio
 pytest
 aiosqlite
+sqlfluff
