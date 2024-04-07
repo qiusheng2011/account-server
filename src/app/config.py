@@ -16,7 +16,8 @@ class AppConfig(pydantic_settings.BaseSettings):
         env_prefix=f"{APP_CONFIG_PREFIX}_",
         case_sensitive=False,
         env_file=(".env", ".env.prod", ".env.dev"),
-        env_file_encoding='utf-8'
+        env_file_encoding='utf-8',
+        extra='ignore'
     )
 
     # server
