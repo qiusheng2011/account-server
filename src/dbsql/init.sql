@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `accounts_certificate_token` (
 -- 账户激活表
 CREATE TABLE IF NOT EXISTS `account_activation` (
     `aid` int(10) UNSIGNED NOT NULL COMMENT "账户id",
-    `activate_token` CHAR(43) NOT NULL COMMENT "激活凭证",
+    `activate_token` CHAR(64) NOT NULL COMMENT "激活凭证",
     `used` int(1) DEFAULT 0 COMMENT "使用标识",
     `expire_time` TIMESTAMP NOT NULL COMMENT "过期时间",
     UNIQUE KEY `activate_token` (`activate_token`),
