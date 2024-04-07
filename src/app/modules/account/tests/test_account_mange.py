@@ -12,13 +12,12 @@ from src.app.modules.account import dbmodel
 from src.app.tool import tool
 
 REDIS_DSN_KEY = "account_server_test_redis_dsn"
-REDIS_DSN = os.getenv(REDIS_DSN_KEY) or os.getenv(REDIS_DSN_KEY.upper())
-
 
 class TestClassAccountManage:
 
     def on_start(self):
-        assert REDIS_DSN, f"环境变量({REDIS_DSN_KEY} or {REDIS_DSN_KEY.upper()})无法获取."
+        self.redis_dsn = os.getenv(REDIS_DSN_KEY) or os.getenv(REDIS_DSN_KEY.upper())
+        assert self.redis_dsn, f"环境变量({REDIS_DSN_KEY} or {REDIS_DSN_KEY.upper()})无法获取."
 
     @pytest.fixture(scope="session")
     async def sessionmaker(self):
@@ -33,8 +32,8 @@ class TestClassAccountManage:
 
     @pytest.fixture(scope="session")
     def event_db_pool_obj(self):
-        assert REDIS_DSN
-        event_db_pool = asyncio_redis.ConnectionPool.from_url(REDIS_DSN)
+        assert self.redis_dsn
+        event_db_pool = asyncio_redis.ConnectionPool.from_url(self.redis_dsn)
         return event_db_pool
 
     @pytest.fixture(scope="session")
