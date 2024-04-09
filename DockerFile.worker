@@ -6,9 +6,7 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "cu
 
 # 安装依赖
 COPY   ./requirements.txt /appserver/
-RUN pip install --no-cache-dir   -Ur /appserver/requirements.txt  -i https://mirrors.cloud.tencent.com/pypi/simple
 
-COPY ./src/   /appserver/src/
-WORKDIR /appserver/src
-CMD ["python", "./main.py"]
-
+COPY ./src/workers   /appserver/src/workers
+WORKDIR /appserver/
+CMD ["python", "./src/workers/send_mail_worker.py"]

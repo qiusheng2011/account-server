@@ -1,0 +1,12 @@
+# syntax=docker/dockerfile:1
+FROM python:3.12
+
+# 设置检查
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl  ${host}:${port}/health" ]
+
+# 安装依赖
+COPY   ./requirements.txt /appserver/
+COPY ./src/   /appserver/src/
+WORKDIR /appserver
+CMD ["python", "./src/main.py"]
+
