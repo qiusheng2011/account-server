@@ -15,7 +15,7 @@ from redis import asyncio as asyncio_redis
 import pydantic
 import pydantic_settings
 
-from . import logging_config
+from src.workers import logging_config
 
 
 logger = logging.getLogger(__name__)
