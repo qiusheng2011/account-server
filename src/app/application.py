@@ -39,7 +39,10 @@ dependencies.init_async_db_connect_pool(
     str(app_config.mysql_dsn), debug=app_config.debug)
 
 # redis event_db_pool
-dependencies.init_async_event_db_connect_pool(str(app_config.redis_dsn))
+dependencies.init_async_event_db_connect_pool(
+    str(app_config.redis_dsn),
+    connect_timeout_s=app_config.redis_connect_timeout_s
+    )
 
 # 导入API路由
 appserver.include_router(account.account_router)

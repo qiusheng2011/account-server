@@ -43,11 +43,12 @@ class AppConfig(pydantic_settings.BaseSettings):
     # DB
     mysql_dsn: pydantic.MySQLDsn = pydantic.Field(default=None)
     mysql_connect_args: dict | None = {
-        "connect_timeout": 3
+        "connect_timeout": 2
     }
 
     # redis
     redis_dsn: pydantic.RedisDsn = pydantic.Field(default=None)
+    redis_connect_timeout_s: int = 2
 
     @pydantic.computed_field
     @functools.cached_property
