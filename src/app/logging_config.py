@@ -49,7 +49,8 @@ def seting_logging_config(
         error_handler.setLevel(logging.ERROR)
         error_handler.setFormatter(logging.Formatter(log_formater))
         root_logger.addHandler(error_handler)
-    elif log_server_url.scheme == "udp":
+
+    if log_server_url and log_server_url.scheme == "udp":
 
         LOGGING_CONFIG["handlers"]["access_udp"] = {
             "class": "logging.handlers.DatagramHandler",

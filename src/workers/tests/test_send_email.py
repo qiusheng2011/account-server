@@ -2,6 +2,7 @@
 from urllib import parse
 
 import pytest
+from src.workers import logging_config
 from src.workers import send_email_worker
 
 

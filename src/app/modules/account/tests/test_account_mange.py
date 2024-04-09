@@ -13,11 +13,16 @@ from src.app.tool import tool
 
 REDIS_DSN_KEY = "account_server_test_redis_dsn"
 
+
 class TestClassAccountManage:
 
-    def on_start(self):
-        self.redis_dsn = os.getenv(REDIS_DSN_KEY) or os.getenv(REDIS_DSN_KEY.upper())
-        assert self.redis_dsn, f"环境变量({REDIS_DSN_KEY} or {REDIS_DSN_KEY.upper()})无法获取."
+    redis_dsn = os.getenv(REDIS_DSN_KEY) or os.getenv(REDIS_DSN_KEY.upper())
+
+    # def on_start(self):
+    #     self.redis_dsn = os.getenv(
+    #         REDIS_DSN_KEY) or os.getenv(REDIS_DSN_KEY.upper())
+    #     assert self.redis_dsn, f"环境变量({REDIS_DSN_KEY} or {
+    #         REDIS_DSN_KEY.upper()})无法获取."
 
     @pytest.fixture(scope="session")
     async def sessionmaker(self):

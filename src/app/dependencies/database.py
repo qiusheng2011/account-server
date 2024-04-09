@@ -25,6 +25,6 @@ def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS, debug=False):
 event_db_pool = None
 
 
-def init_async_event_db_connect_pool(url):
+def init_async_event_db_connect_pool(url, connect_timeout_s=2):
     global event_db_pool
-    event_db_pool = asyncio_redis.ConnectionPool.from_url(url)
+    event_db_pool = asyncio_redis.ConnectionPool.from_url(url=url, socket_connect_timeout=connect_timeout_s)

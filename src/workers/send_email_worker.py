@@ -15,7 +15,9 @@ from redis import asyncio as asyncio_redis
 import pydantic
 import pydantic_settings
 
-logging.basicConfig(level=logging.DEBUG)
+from . import logging_config
+
+
 logger = logging.getLogger(__name__)
 
 WORKER_CONFIG_PREFIX = "account_worker"
@@ -48,7 +50,12 @@ class WorkerConfig(pydantic_settings.BaseSettings):
     task_nums: int = pydantic.Field(default=5, description="监听任务的线程数")
 
     redis_dsn: pydantic.RedisDsn = pydantic.Field(description="redis地址")
+    redis_connect_timeout_s: int = 2
+    # redist_timeout_ms:int = 1000
 
+    # log
+    log_server_url: pydantic.AnyUrl | None = pydantic.Field(
+        default=None, description="UDP日志服务器")
     # smtp 服务设置
     smtp_server_url: pydantic.AnyUrl = pydantic.Field(description="SMTP服务地址")
     smtp_from_mail: str = pydantic.Field(description="stmp发件人地址")
@@ -91,10 +98,10 @@ class SmtpServer(pydantic.BaseModel):
                 )
 
                 server.send_message(message)
-                logging.info(f"to-email:{to_email}>发送成功")
+                logger.info(f"to-email:{to_email}>发送成功")
                 return True
         except smtplib.SMTPAuthenticationError as ex:
-            logging.error(str(ex))
+            logger.error(str(ex))
             return False
 
 
@@ -163,7 +170,12 @@ async def main():
     """
 
     config = WorkerConfig()
-
+    logging_config.setting_logging_config(
+        worker_name="account_worker_sew",
+        log_server_url=config.log_server_url
+    )
+    config_json = config.model_dump_json(exclude={'smtp_server_url'})
+    logger.info(f"config={config_json}")
     smtp_server = SmtpServer(
         url=config.smtp_server_url.host or "",
         port=config.smtp_server_url.port or 0,
@@ -172,7 +184,9 @@ async def main():
         from_mail=config.smtp_from_mail
     )
     event_db_pool = asyncio_redis.ConnectionPool.from_url(
-        str(config.redis_dsn))
+        url=str(config.redis_dsn),
+        socket_connect_timeout=config.redis_connect_timeout_s
+        )
     esw = EmailSendWorker(
         event_db_pool=event_db_pool,
         smtp_server=smtp_server,
