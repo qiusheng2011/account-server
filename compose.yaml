@@ -1,9 +1,0 @@
-services:
-  account-server:
-    build: DockerFile.server
-    ports:
-      - "8000:8000"
-
-  accout-sew-worker:
-    build: DockerFile.worker
-
