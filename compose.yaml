@@ -1,0 +1,20 @@
+name: account
+services:
+  account-server:
+    image: accout-server
+    build: 
+      dockerfile: DockerFile.server
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    deploy:
+      mode: global
+  accout-sew-worker:
+    image: account-sew-worker
+    build: 
+      dockerfile: DockerFile.worker
+    env_file:
+      - .env
+    deploy:
+      mode: global
