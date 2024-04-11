@@ -6,7 +6,7 @@ COPY   ./requirements.txt /appserver/
 RUN pip install --no-cache-dir   -Ur /appserver/requirements.txt  -i https://mirrors.cloud.tencent.com/pypi/simple
 
 
-FROM ACCOUNT_BASE
+# FROM ACCOUNT_BASE
 
 # 设置检查
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl  ${host}:${port}/health" ]
