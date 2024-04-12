@@ -7,7 +7,6 @@ services:
       dockerfile: DockerFile.server
     ports:
       - 8000:8000
-    network_mode: host
     env_file:
       - .env
     deploy:
