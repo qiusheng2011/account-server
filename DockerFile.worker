@@ -16,4 +16,4 @@ COPY   ./requirements.txt /appserver/
 
 COPY ./src   /appserver/src
 WORKDIR /appserver/
-CMD ["python", "./src/workers/send_email_worker.py"]
+CMD ["python", "./src/main_sew_worker.py"]
