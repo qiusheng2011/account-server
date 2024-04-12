@@ -2,7 +2,7 @@ FROM python:3.12
 
 # 安装依赖
 COPY   ./requirements.txt /appserver/
-RUN pip install --no-cache-dir   -Ur /appserver/requirements.txt  -i https://mirrors.cloud.tencent.com/pypi/simple
+RUN pip install --no-cache-dir   -Ur /appserver/requirements.txt --trusted-host mirrors.cloud.tencent -i https://mirrors.cloud.tencent.com/pypi/simple
 
 # FROM ACCOUNT_BASE
 # 设置检查
