@@ -2,6 +2,7 @@
 """
 
 from fastapi import FastAPI
+from fastapi.middleware import cors as fastapi_cors
 
 from src.app.routers import account
 from src.app import logging_config
@@ -23,6 +24,17 @@ appserver = FastAPI(
     openapi_url="/api/v1/openapi.json",
     swagger_ui_parameters={"syntaxHighlight.theme": "monokai"},
 )
+appserver.add_middleware(
+    fastapi_cors.CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+# 配置
 app_config = config.get_app_config()
 appserver.extra = {}
 appserver.extra.setdefault("config", app_config)
