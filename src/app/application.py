@@ -29,9 +29,8 @@ appserver.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
-
 
 
 # 配置
@@ -54,7 +53,7 @@ dependencies.init_async_db_connect_pool(
 dependencies.init_async_event_db_connect_pool(
     str(app_config.redis_dsn),
     connect_timeout_s=app_config.redis_connect_timeout_s
-    )
+)
 
 # 导入API路由
 appserver.include_router(account.account_router)

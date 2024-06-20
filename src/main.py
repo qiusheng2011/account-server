@@ -21,7 +21,7 @@ if __name__ == "__main__":
     import app
     config: pydantic_settings.BaseSettings = app.appserver.extra.get(
         "config", None)
-    logging.info(f"config={config.model_dump_json()}")
+    logger.info(f"config={config.model_dump_json()}")
     uvicorn.run(
         "app:appserver",
         host=str(config.host) or "localhost",

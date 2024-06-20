@@ -6,11 +6,11 @@ CONNECT_ARGS = {
     "connect_timeout": 5
 }
 
-AsyncDBsessionMaker = None
+AsyncDBSessionMaker = None
 
 
 def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS, debug=False):
-    global AsyncDBsessionMaker
+    global AsyncDBSessionMaker
     engine = asyncio_sa.create_async_engine(
         url,
         echo=debug,
@@ -18,7 +18,7 @@ def init_async_db_connect_pool(url, connect_args=CONNECT_ARGS, debug=False):
         pool_pre_ping=True,
         pool_timeout=10
     )
-    AsyncDBsessionMaker = asyncio_sa.async_sessionmaker(
+    AsyncDBSessionMaker = asyncio_sa.async_sessionmaker(
         autoflush=True, bind=engine)
 
 

@@ -12,7 +12,7 @@ class TestClassDBmodel:
     @pytest.fixture(scope="session")
     async def sessionmaker(self):
         engine = sa_asyncio.create_async_engine(
-            url="sqlite+aiosqlite:///:memeory:",
+            url="sqlite+aiosqlite:///:memory:",
             echo=True,
             pool_pre_ping=True
         )

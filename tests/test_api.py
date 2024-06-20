@@ -51,8 +51,7 @@ class TestApiAccount():
             pass
         else:
             return False, None, None
-        
-        # 激活账户 
+        # 激活账户
         return
 
         signin_responce = await client.post("/account/v2/authorization", data={

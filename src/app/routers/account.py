@@ -75,9 +75,9 @@ async def account_register(
 async def account_activate(
     activate_token: str = fastapi.Query(),
     dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker = fastapi.Depends(
-            dependencies.get_async_dbsessionmaker),
+        dependencies.get_async_dbsessionmaker),
     event_db_pool: asyncio_redis.ConnectionPool = fastapi.Depends(
-            dependencies.get_async_event_db_pool)
+        dependencies.get_async_event_db_pool)
 ):
     try:
         account_manager = account.get_account_manager(
@@ -96,9 +96,11 @@ async def account_activate(
 
 
 @account_router.post("/v2/authorization")
-async def signin(request: fastapi.Request,
-                 form_data: security.OAuth2PasswordRequestForm = fastapi.Depends(),
-                 dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker = fastapi.Depends(dependencies.get_async_dbsessionmaker)) -> Optional[router_base.Token]:
+async def signin(
+    request: fastapi.Request,
+    form_data: security.OAuth2PasswordRequestForm = fastapi.Depends(),
+    dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker = fastapi.Depends(dependencies.get_async_dbsessionmaker)
+) -> Optional[router_base.Token]:
     account_manager = account.get_account_manager(dbsessionmaker)
     is_exist, account_u = await account_manager.authencicate_account(form_data.username, form_data.password)
     if not is_exist:
@@ -122,17 +124,22 @@ async def signin(request: fastapi.Request,
 
 
 class ERTRequestModel(pydantic.BaseModel):
-    grant_type: str = fastapi.Form()
-    refresh_token: str = fastapi.Form()
+    grant_type: str
+    refresh_token: str
 
 
 @account_router.post("/v2/accesstoken")
-async def exchange_refresh_token(request: requests.Request, form_data: ERTRequestModel = fastapi.Depends(),
-                                 dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker = fastapi.Depends(dependencies.get_async_dbsessionmaker)):
-    if form_data.grant_type != "refresh_token":
+async def exchange_refresh_token(
+    request: requests.Request,
+    grant_type: str = fastapi.Form(),
+    refresh_token: str = fastapi.Form(),
+    dbsessionmaker: sqlalchemy_asyncio.async_sessionmaker = fastapi.Depends(dependencies.get_async_dbsessionmaker)
+):
+    if grant_type != "refresh_token":
         raise fastapi.HTTPException(
             status_code=400, detail="The provided authorization grant or refresh token is invalid, expired or revoked")
     account_manager = account_manage.AccountManager(dbsessionmaker)
+    form_data = ERTRequestModel(grant_type=grant_type, refresh_token=refresh_token)
     is_exist, account_u = await account_manager.authencicate_account_by_refresh_token(form_data.refresh_token)
     if not is_exist:
         raise routers_exceptions.AuthenricateRefreshToken400HttpError()

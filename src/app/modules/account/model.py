@@ -2,7 +2,6 @@ import datetime
 import pydantic
 
 
-
 class AccountToken(pydantic.BaseModel):
 
     token: str = ""

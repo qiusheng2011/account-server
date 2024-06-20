@@ -103,8 +103,8 @@ class DBAccountOperater():
             selectsql = sa.Select(DBAccount).where(
                 DBAccountCertificateToken.refresh_token == refresh_token)
             results = await session.execute(selectsql)
-            account = results.scalar_one_or_none()
-            return (True, account) if account else (False, None)
+            account = results.fetchone()
+            return (True, account[0]) if account else (False, None)
         except Exception as ex:
             logger.error(str(ex))
             raise ex
