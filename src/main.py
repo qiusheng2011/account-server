@@ -18,10 +18,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/../")
 logger = logging.getLogger(__file__)
 
 if __name__ == "__main__":
-    import app
-    config: pydantic_settings.BaseSettings = app.appserver.extra.get(
+    from src import app
+    from src.app.config import AppConfig
+    config: AppConfig | None = app.appserver.extra.get(
         "config", None)
-    logger.info(f"config={config.model_dump_json()}")
+    if not config:
+        raise ValueError("config is None")
+    logger.info("config=%s", config.model_dump_json())
     uvicorn.run(
         "app:appserver",
         host=str(config.host) or "localhost",
