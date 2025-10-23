@@ -21,7 +21,7 @@ class TestApiAccount():
     @pytest.fixture(autouse=True)
     @pytest.mark.asyncio
     async def async_client(self):
-        async with AsyncClient(app=appserver, base_url="http://localhost") as client:
+        async with AsyncClient(transport=httpx.ASGITransport(app=appserver), base_url="http://127.0.0.1:") as client:
             yield client
 
     @pytest.mark.parametrize("password,except_status", [

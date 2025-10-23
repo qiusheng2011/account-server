@@ -52,7 +52,8 @@ async def account_register(
         new_account = account.Account(
             email=email,
             account_name=account_name,
-            hash_password=tool.get_hash_password(password)
+            hash_password=tool.get_hash_password(password),
+            activation=1
         )
         await account_manager.register(new_account)
     except account.AccountExistError:
